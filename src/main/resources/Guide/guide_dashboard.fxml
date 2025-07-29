@@ -31,6 +31,9 @@
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Label>
+            <!-- For Guide Dashboard FXML: -->
+            <Button fx:id="logoutBtn" onAction="#handleLogout" text="Logout"
+                    style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-font-weight: bold;" />
         </HBox>
     </top>
 

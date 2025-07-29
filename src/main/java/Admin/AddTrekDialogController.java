@@ -19,6 +19,8 @@ public class AddTrekDialogController {
     @FXML private ComboBox<String> difficultyComboBox;
     @FXML private TextField maxAltitudeField;
     @FXML private TextField costField;
+    @FXML private CheckBox applyDiscountCheckBox;
+    @FXML private TextField discountPercentField;
     @FXML private TextField bestSeasonField;
     @FXML private ComboBox<String> attractionComboBox;
     @FXML private ComboBox<String> guideComboBox;
@@ -33,7 +35,7 @@ public class AddTrekDialogController {
         jsonHandler = new AdminJSONHandler();
 
         // Setup difficulty options
-        difficultyComboBox.getItems().addAll("Easy", "Moderate", "Hard");
+        difficultyComboBox.getItems().addAll("Easy", "Moderate", "Hard", "Extreme");
 
         // Set default date to today
         startDatePicker.setValue(LocalDate.now());
@@ -45,6 +47,53 @@ public class AddTrekDialogController {
         // Set button actions
         saveButton.setOnAction(e -> saveTrek());
         cancelButton.setOnAction(e -> closeDialog());
+
+        // Setup discount functionality
+        setupDiscountControls();
+    }
+
+    private void setupDiscountControls() {
+        // Initially hide discount percent field
+        discountPercentField.setVisible(false);
+        discountPercentField.setManaged(false);
+
+        // Show/hide discount percent field when checkbox is toggled
+        applyDiscountCheckBox.setOnAction(e -> {
+            boolean isSelected = applyDiscountCheckBox.isSelected();
+            discountPercentField.setVisible(isSelected);
+            discountPercentField.setManaged(isSelected);
+
+            if (!isSelected) {
+                discountPercentField.clear();
+            }
+        });
+
+        // Validate discount percentage input (0-100)
+        discountPercentField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                discountPercentField.setText(oldVal);
+            } else {
+                try {
+                    if (!newVal.isEmpty()) {
+                        double percent = Double.parseDouble(newVal);
+                        if (percent > 100) {
+                            discountPercentField.setText("100");
+                        } else if (percent < 0) {
+                            discountPercentField.setText("0");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    discountPercentField.setText(oldVal);
+                }
+            }
+        });
+
+        // Only allow numeric input for cost field
+        costField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                costField.setText(oldVal);
+            }
+        });
     }
 
     private void loadAttractions() {
@@ -68,10 +117,10 @@ public class AddTrekDialogController {
     }
 
     private void saveTrek() {
-        // Validate input
+        // Validate required fields
         if (trekNameField.getText().trim().isEmpty() ||
                 durationField.getText().trim().isEmpty() ||
-                startDatePicker.getValue() == null ||  // Added date validation
+                startDatePicker.getValue() == null ||
                 difficultyComboBox.getValue() == null ||
                 maxAltitudeField.getText().trim().isEmpty() ||
                 costField.getText().trim().isEmpty() ||
@@ -84,7 +133,36 @@ public class AddTrekDialogController {
         }
 
         try {
-            double cost = Double.parseDouble(costField.getText().trim());
+            // Parse original cost
+            double originalCost = Double.parseDouble(costField.getText().trim());
+
+            // Calculate discount and final cost
+            boolean hasDiscount = applyDiscountCheckBox.isSelected();
+            double discountPercent = 0.0;
+            double finalCost = originalCost;
+
+            if (hasDiscount) {
+                String discountText = discountPercentField.getText().trim();
+                if (discountText.isEmpty()) {
+                    showAlert("Validation Error", "Please enter discount percentage.");
+                    return;
+                }
+
+                discountPercent = Double.parseDouble(discountText);
+                if (discountPercent < 0 || discountPercent > 100) {
+                    showAlert("Validation Error", "Discount percentage must be between 0 and 100.");
+                    return;
+                }
+
+                // Calculate final cost after discount
+                double discountAmount = originalCost * (discountPercent / 100.0);
+                finalCost = originalCost - discountAmount;
+
+                System.out.println("Original Cost: $" + String.format("%.2f", originalCost));
+                System.out.println("Discount: " + discountPercent + "%");
+                System.out.println("Discount Amount: $" + String.format("%.2f", discountAmount));
+                System.out.println("Final Cost: $" + String.format("%.2f", finalCost));
+            }
 
             // Extract attraction ID from combo box selection
             String attractionSelection = attractionComboBox.getValue();
@@ -104,31 +182,50 @@ public class AddTrekDialogController {
                 return;
             }
 
-            // Create new trek with start date
+            // Create new trek with calculated final cost
             Trek trek = new Trek(
                     trekNameField.getText().trim(),
                     durationField.getText().trim(),
-                    startDatePicker.getValue(),  // Use the selected date
+                    startDatePicker.getValue(),
                     difficultyComboBox.getValue(),
                     maxAltitudeField.getText().trim(),
-                    cost,
+                    finalCost,  // Store the final cost (after discount) as the main cost
                     bestSeasonField.getText().trim(),
                     guideEmail,
                     attractionId
             );
 
+            // Set discount information
+            trek.setHasDiscount(hasDiscount);
+            trek.setOriginalCost(originalCost);
+            trek.setDiscountPercent(discountPercent);
+
             // Add to parent controller
             parentController.addTrek(trek);
+
+            // Show success message
+            if (hasDiscount) {
+                showSuccessAlert("Trek Added Successfully",
+                        String.format("Trek '%s' has been added with %.1f%% discount.\nOriginal Cost: $%.2f\nFinal Cost: $%.2f",
+                                trek.getTrekName(), discountPercent, originalCost, finalCost));
+            } else {
+                showSuccessAlert("Trek Added Successfully",
+                        String.format("Trek '%s' has been added.\nCost: $%.2f",
+                                trek.getTrekName(), finalCost));
+            }
+
             closeDialog();
 
         } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Please enter a valid cost amount.");
+            showAlert("Validation Error", "Please enter valid numeric values for cost and discount percentage.");
+        } catch (Exception e) {
+            showAlert("Error", "An error occurred while saving the trek: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private int extractAttractionId(String attractionSelection) {
         try {
-            // Extract ID from "Name (ID: X)" format
             int startIndex = attractionSelection.lastIndexOf("ID: ") + 4;
             int endIndex = attractionSelection.lastIndexOf(")");
             String idStr = attractionSelection.substring(startIndex, endIndex);
@@ -140,7 +237,6 @@ public class AddTrekDialogController {
 
     private String extractGuideEmail(String guideSelection) {
         try {
-            // Extract email from "Name (email)" format
             int startIndex = guideSelection.lastIndexOf("(") + 1;
             int endIndex = guideSelection.lastIndexOf(")");
             return guideSelection.substring(startIndex, endIndex);
@@ -156,6 +252,14 @@ public class AddTrekDialogController {
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccessAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

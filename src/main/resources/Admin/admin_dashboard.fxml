@@ -35,6 +35,8 @@
                 </ImageView>
                 <Label fx:id="adminNameLabel" text="FirstName" />
             </HBox>
+            <Button fx:id="logoutBtn" onAction="#handleLogout" text="Logout"
+                    style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-font-weight: bold;" />
         </HBox>
     </top>
     <left>

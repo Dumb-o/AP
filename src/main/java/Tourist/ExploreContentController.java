@@ -137,11 +137,22 @@ public class ExploreContentController implements Initializable {
         Region spacer = new Region();
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
+        // Badges container (difficulty + discount if applicable)
+        HBox badgesBox = new HBox(8);
+        badgesBox.setAlignment(Pos.CENTER_RIGHT);
+
+        // NEW: Add discount badge if trek has discount
+        if (trek.hasDiscount()) {
+            Label discountBadge = createDiscountBadge(trek);
+            badgesBox.getChildren().add(discountBadge);
+        }
+
         // Difficulty badge
         Label difficultyLabel = new Label(trek.getDifficulty());
         difficultyLabel.setStyle(getDifficultyStyle(trek.getDifficulty()));
+        badgesBox.getChildren().add(difficultyLabel);
 
-        headerBox.getChildren().addAll(nameSection, spacer, difficultyLabel);
+        headerBox.getChildren().addAll(nameSection, spacer, badgesBox);
 
         // Trek Details
         VBox detailsBox = new VBox(8);
@@ -167,15 +178,16 @@ public class ExploreContentController implements Initializable {
 
         altitudeSeasonBox.getChildren().addAll(altitudeLabel, seasonLabel);
 
-        // Cost and Guide
+        // Cost and Guide - UPDATED to show discount information
         HBox costGuideBox = new HBox(20);
-        Label costLabel = new Label("💰 Cost: $" + String.format("%.0f", trek.getCost()));
-        costLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold; -fx-font-size: 16px;");
+
+        // NEW: Enhanced cost display with discount information
+        VBox costSection = createCostSection(trek);
 
         Label guideLabel = new Label("👨‍🦲 Guide: " + extractGuideName(trek.getGuideEmail()));
         guideLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;");
 
-        costGuideBox.getChildren().addAll(costLabel, guideLabel);
+        costGuideBox.getChildren().addAll(costSection, guideLabel);
 
         detailsBox.getChildren().addAll(durationDateBox, altitudeSeasonBox, costGuideBox);
 
@@ -203,6 +215,69 @@ public class ExploreContentController implements Initializable {
 
         card.getChildren().addAll(headerBox, detailsBox, buttonBox);
         return card;
+    }
+
+    // NEW: Create discount badge
+    private Label createDiscountBadge(Trek trek) {
+        String discountText = String.format("🏷️ %.0f%% OFF", trek.getDiscountPercent());
+        Label discountBadge = new Label(discountText);
+
+        // Catchy discount badge styling
+        discountBadge.setStyle(
+                "-fx-background-color: linear-gradient(to right, #FF6B35, #F7931E); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 11px; " +
+                        "-fx-padding: 4 8; " +
+                        "-fx-background-radius: 12; " +
+                        "-fx-border-color: #FF4500; " +
+                        "-fx-border-width: 1; " +
+                        "-fx-border-radius: 12; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(255,107,53,0.4), 4, 0, 0, 1);"
+        );
+
+        // Add pulsing animation effect
+        addPulseEffect(discountBadge);
+
+        return discountBadge;
+    }
+
+    // NEW: Create enhanced cost section with discount info
+    private VBox createCostSection(Trek trek) {
+        VBox costSection = new VBox(2);
+
+        if (trek.hasDiscount()) {
+            // Show original cost with strikethrough
+            Label originalCostLabel = new Label("💰 Was: $" + String.format("%.0f", trek.getOriginalCost()));
+            originalCostLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 12px; " +
+                    "-fx-strikethrough: true;");
+
+            // Show discounted cost prominently
+            Label finalCostLabel = new Label("💰 Now: $" + String.format("%.0f", trek.getCost()));
+            finalCostLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold; -fx-font-size: 16px;");
+
+            costSection.getChildren().addAll(originalCostLabel, finalCostLabel);
+        } else {
+            // Regular cost display
+            Label costLabel = new Label("💰 Cost: $" + String.format("%.0f", trek.getCost()));
+            costLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold; -fx-font-size: 16px;");
+            costSection.getChildren().add(costLabel);
+        }
+
+        return costSection;
+    }
+
+    // NEW: Add subtle pulse effect to discount badge
+    private void addPulseEffect(Label discountBadge) {
+        javafx.animation.ScaleTransition scaleTransition =
+                new javafx.animation.ScaleTransition(javafx.util.Duration.seconds(1.5), discountBadge);
+        scaleTransition.setFromX(1.0);
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(1.05);
+        scaleTransition.setToY(1.05);
+        scaleTransition.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        scaleTransition.setAutoReverse(true);
+        scaleTransition.play();
     }
 
     private String getDifficultyStyle(String difficulty) {
@@ -248,30 +323,69 @@ public class ExploreContentController implements Initializable {
         detailsAlert.setHeaderText(trek.getTrekName());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-        String details = String.format(
-                """
-                        🏔️ Trek: %s
-                        
-                        ⏰ Duration: %s
-                        📅 Start Date: %s
-                        ⚡ Difficulty: %s
-                        ⛰️ Maximum Altitude: %s
-                        💰 Cost: $%.0f
-                        🌤️ Best Season: %s
-                        👨‍🦲 Guide: %s
-                        🆔 Trek ID: %d
-                        🎯 Attraction ID: %d""",
-                trek.getTrekName(),
-                trek.getDuration(),
-                trek.getStartDate().format(formatter),
-                trek.getDifficulty(),
-                trek.getMaxAltitude(),
-                trek.getCost(),
-                trek.getBestSeason(),
-                extractGuideName(trek.getGuideEmail()),
-                trek.getId(),
-                trek.getAttractionId()
-        );
+
+        // NEW: Enhanced details with discount information
+        String details;
+        if (trek.hasDiscount()) {
+            details = String.format(
+                    """
+                    🏔️ Trek: %s
+                    
+                    ⏰ Duration: %s
+                    📅 Start Date: %s
+                    ⚡ Difficulty: %s
+                    ⛰️ Maximum Altitude: %s
+                    
+                    💰 SPECIAL OFFER! 🏷️
+                    Original Price: $%.0f
+                    Discount: %.1f%% OFF
+                    You Save: $%.0f
+                    Final Price: $%.0f
+                    
+                    🌤️ Best Season: %s
+                    👨‍🦲 Guide: %s
+                    🆔 Trek ID: %d
+                    🎯 Attraction ID: %d""",
+                    trek.getTrekName(),
+                    trek.getDuration(),
+                    trek.getStartDate().format(formatter),
+                    trek.getDifficulty(),
+                    trek.getMaxAltitude(),
+                    trek.getOriginalCost(),
+                    trek.getDiscountPercent(),
+                    trek.getDiscountAmount(),
+                    trek.getCost(),
+                    trek.getBestSeason(),
+                    extractGuideName(trek.getGuideEmail()),
+                    trek.getId(),
+                    trek.getAttractionId()
+            );
+        } else {
+            details = String.format(
+                    """
+                    🏔️ Trek: %s
+                    
+                    ⏰ Duration: %s
+                    📅 Start Date: %s
+                    ⚡ Difficulty: %s
+                    ⛰️ Maximum Altitude: %s
+                    💰 Cost: $%.0f
+                    🌤️ Best Season: %s
+                    👨‍🦲 Guide: %s
+                    🆔 Trek ID: %d
+                    🎯 Attraction ID: %d""",
+                    trek.getTrekName(),
+                    trek.getDuration(),
+                    trek.getStartDate().format(formatter),
+                    trek.getDifficulty(),
+                    trek.getMaxAltitude(),
+                    trek.getCost(),
+                    trek.getBestSeason(),
+                    extractGuideName(trek.getGuideEmail()),
+                    trek.getId(),
+                    trek.getAttractionId()
+            );
+        }
 
         detailsAlert.setContentText(details);
         detailsAlert.getDialogPane().setPrefWidth(400);
@@ -288,20 +402,44 @@ public class ExploreContentController implements Initializable {
         confirmAlert.setTitle("Book Trek");
         confirmAlert.setHeaderText("Confirm Booking");
 
-        String bookingDetails = String.format(
-                "You are about to book:\n\n" +
-                        "🏔️ %s\n" +
-                        "📅 Starting: %s\n" +
-                        "⏰ Duration: %s\n" +
-                        "💰 Total Cost: $%.0f\n" +
-                        "👨‍🦲 Guide: %s\n\n" +
-                        "Do you want to proceed with the booking?",
-                trek.getTrekName(),
-                trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
-                trek.getDuration(),
-                trek.getCost(),
-                extractGuideName(trek.getGuideEmail())
-        );
+        // NEW: Enhanced booking confirmation with discount info
+        String bookingDetails;
+        if (trek.hasDiscount()) {
+            bookingDetails = String.format(
+                    "You are about to book:\n\n" +
+                            "🏔️ %s\n" +
+                            "📅 Starting: %s\n" +
+                            "⏰ Duration: %s\n" +
+                            "🏷️ DISCOUNT APPLIED: %.1f%% OFF!\n" +
+                            "💰 Original Price: $%.0f\n" +
+                            "💰 Your Price: $%.0f (You save $%.0f!)\n" +
+                            "👨‍🦲 Guide: %s\n\n" +
+                            "Do you want to proceed with this discounted booking?",
+                    trek.getTrekName(),
+                    trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
+                    trek.getDuration(),
+                    trek.getDiscountPercent(),
+                    trek.getOriginalCost(),
+                    trek.getCost(),
+                    trek.getDiscountAmount(),
+                    extractGuideName(trek.getGuideEmail())
+            );
+        } else {
+            bookingDetails = String.format(
+                    "You are about to book:\n\n" +
+                            "🏔️ %s\n" +
+                            "📅 Starting: %s\n" +
+                            "⏰ Duration: %s\n" +
+                            "💰 Total Cost: $%.0f\n" +
+                            "👨‍🦲 Guide: %s\n\n" +
+                            "Do you want to proceed with the booking?",
+                    trek.getTrekName(),
+                    trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
+                    trek.getDuration(),
+                    trek.getCost(),
+                    extractGuideName(trek.getGuideEmail())
+            );
+        }
 
         confirmAlert.setContentText(bookingDetails);
 
@@ -313,13 +451,34 @@ public class ExploreContentController implements Initializable {
                     Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                     successAlert.setTitle("Booking Confirmed");
                     successAlert.setHeaderText("Success!");
-                    successAlert.setContentText(
-                            "Your booking for " + trek.getTrekName() + " has been confirmed!\n\n" +
-                                    "Booking Status: Pending\n" +
-                                    "You will receive a confirmation email shortly with detailed information " +
-                                    "about your trek, including packing lists, meeting points, and contact details.\n\n" +
-                                    "The guide will contact you soon to finalize the details."
-                    );
+
+                    String successMessage;
+                    if (trek.hasDiscount()) {
+                        successMessage = String.format(
+                                "Your booking for %s has been confirmed!\n\n" +
+                                        "🎉 Congratulations! You saved $%.0f with our %.1f%% discount!\n" +
+                                        "Final Amount Paid: $%.0f\n\n" +
+                                        "Booking Status: Pending\n" +
+                                        "You will receive a confirmation email shortly with detailed information " +
+                                        "about your trek, including packing lists, meeting points, and contact details.\n\n" +
+                                        "The guide will contact you soon to finalize the details.",
+                                trek.getTrekName(),
+                                trek.getDiscountAmount(),
+                                trek.getDiscountPercent(),
+                                trek.getCost()
+                        );
+                    } else {
+                        successMessage = String.format(
+                                "Your booking for %s has been confirmed!\n\n" +
+                                        "Booking Status: Pending\n" +
+                                        "You will receive a confirmation email shortly with detailed information " +
+                                        "about your trek, including packing lists, meeting points, and contact details.\n\n" +
+                                        "The guide will contact you soon to finalize the details.",
+                                trek.getTrekName()
+                        );
+                    }
+
+                    successAlert.setContentText(successMessage);
                     successAlert.showAndWait();
                 } else {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);

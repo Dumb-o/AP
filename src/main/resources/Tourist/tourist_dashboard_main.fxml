@@ -30,9 +30,11 @@
 
             <Separator orientation="VERTICAL" />
 
-            <Label fx:id="userAvatar" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-size: 16px; -fx-font-weight: bold; -fx-alignment: center; -fx-pref-width: 40; -fx-pref-height: 40;" text="👤" />
+            <Label fx:id="userNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;" />
+            <!-- For Tourist Dashboard FXML: -->
+            <Button fx:id="logoutBtn" onAction="#handleLogout" text="Logout"
+                    style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-font-weight: bold;" />
 
-            <Label fx:id="userNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
         </ToolBar>
     </top>
 

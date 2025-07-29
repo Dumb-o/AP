@@ -1,141 +1,14 @@
-//package Tourist;
-//
-//import Models.User;
-//import javafx.fxml.FXML;
-//import javafx.fxml.FXMLLoader;
-//import javafx.fxml.Initializable;
-//import javafx.scene.control.*;
-//import javafx.scene.layout.StackPane;
-//import javafx.scene.Parent;
-//import Session.UserSession;
-//
-//import java.io.IOException;
-//import java.net.URL;
-//import java.util.ResourceBundle;
-//
-//public class TouristDashboardMainController implements Initializable {
-//
-//    @FXML
-//    private ComboBox<String> languageCombo;
-//
-//    @FXML
-//    private Label userAvatar;
-//
-//    @FXML
-//    private Label userNameLabel;
-//
-//    @FXML
-//    private Button dashboardBtn;
-//
-//    @FXML
-//    private Button profileBtn;
-//
-//    @FXML
-//    private Button exploreBtn;
-//
-//    @FXML
-//    private Button bookingsBtn;
-//
-//    @FXML
-//    private StackPane contentArea;
-//
-//    // Current active button for styling
-//    private Button activeButton;
-//
-//    @Override
-//    public void initialize(URL location, ResourceBundle resources) {
-//        setupLanguageCombo();
-//        setupEventHandlers();
-//        setActiveButton(dashboardBtn);
-//        User currentUser = UserSession.getInstance().getCurrentUser();
-//        if (currentUser != null) {
-//            userNameLabel.setText(currentUser.getFirstName());
-//        } else {
-//            userNameLabel.setText("Guest");
-//        }
-//        showDashboard();
-//    }
-//
-//    private void setupLanguageCombo() {
-//        languageCombo.getItems().addAll("English", "Nepali");
-//        languageCombo.setValue("English");
-//
-//        languageCombo.setOnAction(e -> {
-//            String selectedLanguage = languageCombo.getValue();
-//            System.out.println("Language changed to: " + selectedLanguage);
-//        });
-//    }
-//
-//    private void setupEventHandlers() {
-//    }
-//
-//    @FXML
-//    private void showDashboard() {
-//        loadContent("/Tourist/TouristDashboardContent.fxml");
-//        setActiveButton(dashboardBtn);
-//    }
-//
-//    @FXML
-//    private void showProfile() {
-//        loadContent("/Tourist/touristProfile.fxml");
-//        setActiveButton(profileBtn);
-//    }
-//
-//    @FXML
-//    private void showExplore() {
-//        loadContent("/Tourist/ExploreContent.fxml");
-//        setActiveButton(exploreBtn);
-//    }
-//
-//    @FXML
-//    private void showBookings() {
-//        loadContent("/Tourist/touristsBooking.fxml");
-//        setActiveButton(bookingsBtn);
-//    }
-//
-//    private void loadContent(String fxmlPath) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-//            Parent content = loader.load();
-//            contentArea.getChildren().clear();
-//            contentArea.getChildren().add(content);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            showErrorContent("Failed to load content: " + fxmlPath);
-//        }
-//    }
-//
-//    private void showErrorContent(String message) {
-//        Label errorLabel = new Label(message);
-//        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
-//        contentArea.getChildren().clear();
-//        contentArea.getChildren().add(errorLabel);
-//    }
-//
-//    private void setActiveButton(Button button) {
-//        resetButtonStyles();
-//        button.setStyle("-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-padding: 12; -fx-font-size: 14; -fx-background-radius: 8;");
-//        activeButton = button;
-//    }
-//
-//    private void resetButtonStyles() {
-//        String defaultStyle = "-fx-background-color: transparent; -fx-padding: 12; -fx-font-size: 14;";
-//        dashboardBtn.setStyle(defaultStyle);
-//        profileBtn.setStyle(defaultStyle);
-//        exploreBtn.setStyle(defaultStyle);
-//        bookingsBtn.setStyle(defaultStyle);
-//    }
-//}
-
 package Tourist;
 
 import Models.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 import Session.UserSession;
 import Language.LanguageManager;
 
@@ -165,6 +38,9 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
 
     @FXML
     private Button bookingsBtn;
+
+    @FXML
+    private Button logoutBtn; // NEW: Logout button
 
     @FXML
     private StackPane contentArea;
@@ -215,6 +91,44 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
         }
     }
 
+    // NEW: Logout functionality
+    @FXML
+    private void handleLogout() {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Logout Confirmation");
+        confirmAlert.setHeaderText("Are you sure you want to logout?");
+        confirmAlert.setContentText("You will be redirected to the login screen.");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    // Clean up language manager listener
+                    cleanup();
+
+                    // Clear user session
+                    UserSession.getInstance().logout();
+
+                    // Load login screen
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/First/Login.fxml"));
+                    Scene loginScene = new Scene(loader.load());
+
+                    // Get current stage and set login scene
+                    Stage currentStage = (Stage) logoutBtn.getScene().getWindow();
+                    currentStage.setScene(loginScene);
+                    currentStage.setTitle("GHUMGHAM - Login");
+                    currentStage.centerOnScreen();
+
+                    System.out.println("Tourist logged out successfully");
+
+                } catch (IOException e) {
+                    System.err.println("Error loading login screen: " + e.getMessage());
+                    e.printStackTrace();
+                    showAlert("Error", "Could not load login screen. Please restart the application.");
+                }
+            }
+        });
+    }
+
     private void checkFXMLElements() {
         System.out.println("Checking FXML elements...");
         System.out.println("languageCombo: " + (languageCombo != null ? "OK" : "NULL"));
@@ -223,6 +137,7 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
         System.out.println("profileBtn: " + (profileBtn != null ? "OK" : "NULL"));
         System.out.println("exploreBtn: " + (exploreBtn != null ? "OK" : "NULL"));
         System.out.println("bookingsBtn: " + (bookingsBtn != null ? "OK" : "NULL"));
+        System.out.println("logoutBtn: " + (logoutBtn != null ? "OK" : "NULL"));
         System.out.println("contentArea: " + (contentArea != null ? "OK" : "NULL"));
     }
 
@@ -392,7 +307,6 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
         updateComboBoxLabels(); // update ComboBox label texts without triggering event
     }
 
-
     private void updateTexts() {
         try {
             if (languageManager == null) {
@@ -411,6 +325,9 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
             }
             if (bookingsBtn != null) {
                 bookingsBtn.setText(languageManager.getString("nav.bookings"));
+            }
+            if (logoutBtn != null) {
+                logoutBtn.setText(languageManager.getString("nav.logout"));
             }
 
             System.out.println("UI texts updated to: " + languageManager.getCurrentLocale().getDisplayName());
@@ -435,7 +352,6 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
         try {
             if (languageCombo == null || languageManager == null) return;
 
-            String previousSelection = languageCombo.getValue();
             String newEnglishLabel = languageManager.getString("language.english");
             String newNepaliLabel = languageManager.getString("language.nepali");
 
@@ -456,4 +372,11 @@ public class TouristDashboardMainController implements Initializable, LanguageMa
         }
     }
 
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

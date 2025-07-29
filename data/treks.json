@@ -9,7 +9,10 @@
     "cost": 1500.0,
     "bestSeason": "Spring",
     "guideEmail": "sarun-maharjan@guide.com",
-    "attractionId": 1
+    "attractionId": 1,
+    "hasDiscount": false,
+    "originalCost": 0.0,
+    "discountPercent": 0.0
   },
   {
     "id": 2,
@@ -21,7 +24,10 @@
     "cost": 500.0,
     "bestSeason": "Summer",
     "guideEmail": "rijabhomi@guide.com",
-    "attractionId": 4
+    "attractionId": 4,
+    "hasDiscount": false,
+    "originalCost": 0.0,
+    "discountPercent": 0.0
   },
   {
     "id": 3,
@@ -33,7 +39,10 @@
     "cost": 4000.0,
     "bestSeason": "Summer",
     "guideEmail": "rijabhomi@guide.com",
-    "attractionId": 3
+    "attractionId": 3,
+    "hasDiscount": false,
+    "originalCost": 0.0,
+    "discountPercent": 0.0
   },
   {
     "id": 4,
@@ -45,6 +54,24 @@
     "cost": 8000.0,
     "bestSeason": "Never",
     "guideEmail": "rijabhomi@guide.com",
-    "attractionId": 5
+    "attractionId": 5,
+    "hasDiscount": false,
+    "originalCost": 0.0,
+    "discountPercent": 0.0
+  },
+  {
+    "id": 5,
+    "trekName": "TestingDiscount",
+    "duration": "5 Days",
+    "startDateStr": "2025-07-29",
+    "difficulty": "Extreme",
+    "maxAltitude": "5000",
+    "cost": 800.0,
+    "bestSeason": "Spring",
+    "guideEmail": "sarun-maharjan@guide.com",
+    "attractionId": 2,
+    "hasDiscount": true,
+    "originalCost": 1000.0,
+    "discountPercent": 20.0
   }
 ]
