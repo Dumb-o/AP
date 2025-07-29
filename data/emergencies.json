@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "guideName": "Sarun Maharjan",
+    "guideEmail": "sarun-maharjan@guide.com",
+    "emergencyType": "Accident",
+    "description": "askdbaskdbaskdbh",
+    "location": "jhsbdhasbd",
+    "severity": "Medium",
+    "status": "Resolved",
+    "reportedAtStr": "2025-07-29T00:13:25.805143568",
+    "resolvedAtStr": "2025-07-29T00:13:34.056007969",
+    "contactNumber": "98123898312",
+    "additionalNotes": "wdeqbhdqwihd"
+  },
+  {
+    "id": 2,
+    "guideName": "Sarun Maharjan",
+    "guideEmail": "sarun-maharjan@guide.com",
+    "emergencyType": "Lost Tourist",
+    "description": "jkdjskb",
+    "location": "sdfkjbsfs",
+    "severity": "Critical",
+    "status": "Reported",
+    "reportedAtStr": "2025-07-29T00:20:18.799940918",
+    "contactNumber": "1239193900",
+    "additionalNotes": "jkbsfhsbfhk"
+  }
+]

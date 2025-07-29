@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1753605236004",
+    "firstName": "Sarun",
+    "lastName": "Maharjan",
+    "email": "SarunMaharjan@gmail.com",
+    "phone": "9869027044",
+    "password": "1234",
+    "userType": "user",
+    "createdAt": "2025-07-27T14:18:56.0039254"
+  },
+  {
+    "id": "1753605236006",
+    "firstName": "Samuel",
+    "lastName": "Jacksons",
+    "email": "admin@admin",
+    "phone": "9869027044",
+    "password": "1234",
+    "userType": "admin",
+    "createdAt": "2025-07-27T14:18:56.0039254"
+  },
+  {
+    "id": "1753614567653",
+    "firstName": "Saugat",
+    "lastName": "Chaudhary",
+    "email": "Soggy@gmail.com",
+    "phone": "9869045066",
+    "password": "1234",
+    "userType": "user",
+    "createdAt": "2025-07-27T16:54:27.653874934"
+  },
+  {
+    "id": "1753666811977",
+    "firstName": "Bijee",
+    "lastName": "Dangol",
+    "email": "bijeeedangol@hotmadam.com",
+    "phone": "9863909977",
+    "password": "1234",
+    "userType": "user",
+    "createdAt": "2025-07-28T07:25:11.976992996"
+  },
+  {
+    "id": "1753713593792",
+    "firstName": "Test",
+    "lastName": "Test",
+    "email": "Test@gmail.com",
+    "phone": "9089798761",
+    "password": "1234",
+    "userType": "user",
+    "createdAt": "2025-07-28T20:24:53.792550477"
+  }
+]

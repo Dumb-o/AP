@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "Pashupatinath Ghumne",
+    "location": "Pashupati, Kathmandu",
+    "difficulty": "Easy",
+    "type": "Heritage Site",
+    "remarks": "Ramro xa thau"
+  },
+  {
+    "id": 2,
+    "name": "Manasalu Circuit",
+    "location": "Manasalu, Somewhereidk",
+    "difficulty": "Hard",
+    "type": "Trekking",
+    "remarks": "It is a good place, good for trekking and moutaineering"
+  },
+  {
+    "id": 3,
+    "name": "More Places Testing",
+    "location": "Testing, Testing",
+    "difficulty": "Moderate",
+    "type": "Mountain",
+    "remarks": "I dont know"
+  },
+  {
+    "id": 4,
+    "name": "Four",
+    "location": "Four Four",
+    "difficulty": "Hard",
+    "type": "Four",
+    "remarks": "Four Four"
+  }
+]

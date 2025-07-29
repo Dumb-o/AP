@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.finalll.EmergencyContentController">
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="20.0">
+        <Label text="EMERGENCY LOGS" textFill="#333333">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="severityFilter" prefWidth="150.0" promptText="Filter by Severity" style="-fx-background-radius: 5;" />
+        <TextField fx:id="searchField" prefWidth="250.0" promptText="Search emergency logs..." style="-fx-background-radius: 5;" />
+        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
+    </HBox>
+
+    <!-- Emergency Logs Table -->
+    <TableView fx:id="emergencyTable" style="-fx-background-color: white; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="logIdColumn" prefWidth="80.0" text="Log ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="logId" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="dateColumn" prefWidth="120.0" text="Date">
+                <cellValueFactory>
+                    <PropertyValueFactory property="incidentDate" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="locationColumn" prefWidth="150.0" text="Location">
+                <cellValueFactory>
+                    <PropertyValueFactory property="location" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="typeColumn" prefWidth="120.0" text="Type">
+                <cellValueFactory>
+                    <PropertyValueFactory property="incidentType" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="severityColumn" prefWidth="100.0" text="Severity">
+                <cellValueFactory>
+                    <PropertyValueFactory property="severity" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="reporterColumn" prefWidth="150.0" text="Reporter">
+                <cellValueFactory>
+                    <PropertyValueFactory property="reporterName" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Status">
+                <cellValueFactory>
+                    <PropertyValueFactory property="status" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="descriptionColumn" prefWidth="200.0" text="Description">
+                <cellValueFactory>
+                    <PropertyValueFactory property="shortDescription" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        </padding>
+    </TableView>
+
+    <!-- Footer with statistics -->
+    <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 5; -fx-padding: 15;">
+        <Label fx:id="totalLogsLabel" text="Total Logs: 0" textFill="#666666">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label fx:id="criticalLogsLabel" text="Critical: 0" textFill="#F44336">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label fx:id="highLogsLabel" text="High: 0" textFill="#FF9800">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label fx:id="resolvedLogsLabel" text="Resolved: 0" textFill="#4CAF50">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+    </HBox>
+</VBox>

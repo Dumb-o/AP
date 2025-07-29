@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Admin.AttractionsContentController">
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="20.0">
+        <Label text="ATTRACTIONS" textFill="#333333">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchField" prefWidth="250.0" promptText="Search attractions..." style="-fx-background-radius: 5;" />
+        <Button fx:id="addAttractionButton" mnemonicParsing="false" onAction="#addNewAttraction" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;" text="Add Attraction" />
+        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
+    </HBox>
+
+    <!-- Attractions Table -->
+    <TableView fx:id="attractionsTable" style="-fx-background-color: white; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="placeColumn" prefWidth="200.0" text="Name">
+                <cellValueFactory>
+                    <PropertyValueFactory property="name" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="locationColumn" prefWidth="200.0" text="Location">
+                <cellValueFactory>
+                    <PropertyValueFactory property="location" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="difficultyColumn" prefWidth="150.0" text="Difficulty">
+                <cellValueFactory>
+                    <PropertyValueFactory property="difficulty" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="typeColumn" prefWidth="100.0" text="Type">
+                <cellValueFactory>
+                    <PropertyValueFactory property="type" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="remarksColumn" prefWidth="200.0" text="Remarks">
+                <cellValueFactory>
+                    <PropertyValueFactory property="warning" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        </padding>
+    </TableView>
+
+    <!-- Footer with statistics -->
+    <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 5; -fx-padding: 15;">
+        <Label fx:id="totalAttractionsLabel" text="Total Attractions: 0" textFill="#666666">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+    </HBox>
+</VBox>

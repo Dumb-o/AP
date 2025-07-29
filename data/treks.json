@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "trekName": "Pashupatinah",
+    "duration": "1 Day",
+    "startDateStr": "2025-07-27",
+    "difficulty": "Easy",
+    "maxAltitude": "200",
+    "cost": 1500.0,
+    "bestSeason": "Spring",
+    "guideEmail": "sarun-maharjan@guide.com",
+    "attractionId": 1
+  },
+  {
+    "id": 2,
+    "trekName": "Four Test",
+    "duration": "5",
+    "startDateStr": "2025-07-28",
+    "difficulty": "Moderate",
+    "maxAltitude": "200",
+    "cost": 500.0,
+    "bestSeason": "Summer",
+    "guideEmail": "rijabhomi@guide.com",
+    "attractionId": 4
+  },
+  {
+    "id": 3,
+    "trekName": "Five",
+    "duration": "9",
+    "startDateStr": "2025-07-28",
+    "difficulty": "Hard",
+    "maxAltitude": "1200",
+    "cost": 4000.0,
+    "bestSeason": "Summer",
+    "guideEmail": "rijabhomi@guide.com",
+    "attractionId": 3
+  }
+]
