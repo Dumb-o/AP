@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.GridPane?>
@@ -75,11 +76,6 @@
     <!-- Statistics Cards -->
     <HBox prefHeight="172.0" prefWidth="557.0" spacing="20.0">
         <VBox prefHeight="172.0" prefWidth="271.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-border-color: #e0e0e0; -fx-border-radius: 15;" HBox.hgrow="ALWAYS">
-            <Label style="-fx-font-size: 24;" text="🎒">
-                <font>
-                    <Font size="24.0" />
-                </font>
-            </Label>
             <Label text="Active bookings" textFill="#666666">
                 <font>
                     <Font size="14.0" />
