@@ -54,14 +54,16 @@ public class AdminBookingsController implements Initializable {
     private ObservableList<BookingDisplayData> allBookings;
     private ObservableList<BookingDisplayData> filteredBookings;
     private AdminJSONHandler jsonHandler;
+    private JSONHandler userJsonHandler;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         jsonHandler = new AdminJSONHandler();
+        userJsonHandler = new JSONHandler();
 
         setupTable();
         setupEventHandlers();
-        loadAllBookings();
+        loadAllBookingsInitial(); // Initial load without notification
 
         System.out.println("AdminBookingsController initialized - loading all bookings");
     }
@@ -88,7 +90,8 @@ public class AdminBookingsController implements Initializable {
     }
 
     private void setupEventHandlers() {
-        refreshButton.setOnAction(e -> loadAllBookings());
+        // Refresh button shows notification
+        refreshButton.setOnAction(e -> loadAllBookingsWithNotification());
 
         // Setup search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -96,7 +99,18 @@ public class AdminBookingsController implements Initializable {
         });
     }
 
-    private void loadAllBookings() {
+    // Initial loading without notification (called during initialization)
+    private void loadAllBookingsInitial() {
+        loadBookingsData(false);
+    }
+
+    // Refresh with notification (called when refresh button is pressed)
+    private void loadAllBookingsWithNotification() {
+        loadBookingsData(true);
+    }
+
+    // Core method that loads data with optional notification
+    private void loadBookingsData(boolean showNotification) {
         try {
             System.out.println("Loading all bookings from JSON file...");
 
@@ -114,9 +128,13 @@ public class AdminBookingsController implements Initializable {
                 }
             }
 
-            // Update display
             updateBookingsDisplay(allBookings);
             applyFilters();
+
+            // Only show success notification if requested (i.e., when refresh button is pressed)
+            if (showNotification) {
+                showSuccess();
+            }
 
         } catch (Exception e) {
             System.err.println("Error loading all bookings: " + e.getMessage());
@@ -151,12 +169,14 @@ public class AdminBookingsController implements Initializable {
             String amount = String.format("$%.0f", trek.getCost());
 
             return new BookingDisplayData(
+                    booking,
                     booking.getBookingId(),
                     touristName,
                     attractionName,
                     guideName,
                     formattedDate,
-                    amount
+                    amount,
+                    trek.getTrekName()
             );
 
         } catch (Exception e) {
@@ -173,7 +193,7 @@ public class AdminBookingsController implements Initializable {
             }
 
             // Load users from JSON file
-            List<User> users = JSONHandler.loadUsers();
+            List<User> users = userJsonHandler.loadUsers();
 
             // Find user by email
             User user = users.stream()
@@ -282,25 +302,40 @@ public class AdminBookingsController implements Initializable {
         alert.showAndWait();
     }
 
+    private void showSuccess() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(null);
+        alert.setContentText("Data refreshed successfully!");
+        alert.showAndWait();
+    }
 
-    // Inner class for table display data
+
+    public void refreshBookings() {
+        loadAllBookingsWithNotification();
+    }
+
     public static class BookingDisplayData {
+        private final Booking originalBooking;
         private final String bookingId;
         private final String touristName;
         private final String attractionName;
         private final String guideName;
         private final String formattedDate;
         private final String amount;
+        private final String trekName;
 
-        public BookingDisplayData(String bookingId, String touristName,
+        public BookingDisplayData(Booking originalBooking, String bookingId, String touristName,
                                   String attractionName, String guideName, String formattedDate,
-                                  String amount) {
+                                  String amount, String trekName) {
+            this.originalBooking = originalBooking;
             this.bookingId = bookingId;
             this.touristName = touristName;
             this.attractionName = attractionName;
             this.guideName = guideName;
             this.formattedDate = formattedDate;
             this.amount = amount;
+            this.trekName = trekName;
         }
 
         // Getters
@@ -310,5 +345,6 @@ public class AdminBookingsController implements Initializable {
         public String getGuideName() { return guideName; }
         public String getFormattedDate() { return formattedDate; }
         public String getAmount() { return amount; }
+        public String getTrekName() { return trekName; }
     }
 }

@@ -34,5 +34,17 @@
     "bestSeason": "Summer",
     "guideEmail": "rijabhomi@guide.com",
     "attractionId": 3
+  },
+  {
+    "id": 4,
+    "trekName": "sjhvhdajbdjwhahwjda",
+    "duration": "3 days 2 nights",
+    "startDateStr": "2025-07-29",
+    "difficulty": "Easy",
+    "maxAltitude": "8000",
+    "cost": 8000.0,
+    "bestSeason": "Never",
+    "guideEmail": "rijabhomi@guide.com",
+    "attractionId": 5
   }
 ]

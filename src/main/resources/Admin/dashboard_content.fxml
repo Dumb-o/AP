@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Admin.DashboardContentController">
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Admin.DashboardContentController">
     <padding>
         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
     </padding>
 
-    <!-- Welcome Section -->
+    <!-- Welcome, Section -->
     <VBox spacing="10.0">
         <Label fx:id="welcomeLabel" text="Namaste Admin," textFill="#333333">
             <font>
@@ -29,7 +33,6 @@
     <HBox spacing="20.0">
         <!-- Total Tourists Card -->
         <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Label text="👥" style="-fx-font-size: 24px;" />
             <Label fx:id="totalTouristsLabel" text="0" textFill="#333333">
                 <font>
                     <Font name="System Bold" size="28.0" />
@@ -44,7 +47,6 @@
 
         <!-- Active Guides Card -->
         <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Label text="👨‍🦲" style="-fx-font-size: 24px;" />
             <Label fx:id="activeGuidesLabel" text="0" textFill="#333333">
                 <font>
                     <Font name="System Bold" size="28.0" />
@@ -59,7 +61,6 @@
 
         <!-- Total Emergencies Card -->
         <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Label text="🚨" style="-fx-font-size: 24px;" />
             <Label fx:id="totalEmergenciesLabel" text="0" textFill="#e53e3e">
                 <font>
                     <Font name="System Bold" size="28.0" />
@@ -94,7 +95,7 @@
         </VBox>
 
         <!-- Recent Activity -->
-        <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" prefWidth="300.0">
+        <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
             <Label text="Recent Activity" textFill="#333333">
                 <font>
                     <Font name="System Bold" size="18.0" />

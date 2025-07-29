@@ -191,6 +191,7 @@ public class AdminEmergencyController implements Initializable {
 
     private void setupEventHandlers() {
         refreshButton.setOnAction(e -> loadAllEmergencies());
+        refreshButton.setOnAction(e->showSuccess());
         viewDetailsButton.setOnAction(e -> viewSelectedEmergencyDetails());
         resolveEmergencyButton.setOnAction(e -> resolveSelectedEmergency());
 
@@ -429,6 +430,14 @@ public class AdminEmergencyController implements Initializable {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccess() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(null);
+        alert.setContentText("Data refreshed Successfully");
         alert.showAndWait();
     }
 
