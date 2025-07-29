@@ -31,8 +31,7 @@ public class ExploreContentController implements Initializable {
     private List<Trek> filteredTreks;
     private AdminJSONHandler jsonHandler;
 
-    // Keep this for backward compatibility, but we'll override it with session data
-    private String currentUserEmail = "tourist@example.com"; // Default for testing
+    private String currentUserEmail = "tourist@example.com";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -40,12 +39,9 @@ public class ExploreContentController implements Initializable {
         setupSearchField();
         loadTreksFromJSON();
         displayTreks(allTreks);
-
-        // Try to get user email from session
         updateUserEmailFromSession();
     }
 
-    // Add this new method to get email from session
     private void updateUserEmailFromSession() {
         try {
             UserSession userSession = UserSession.getInstance();
@@ -76,7 +72,7 @@ public class ExploreContentController implements Initializable {
         } catch (Exception e) {
             System.err.println("Error loading treks from JSON: " + e.getMessage());
             e.printStackTrace();
-            allTreks = List.of(); // Empty list as fallback
+            allTreks = List.of();
         }
     }
 
@@ -89,7 +85,7 @@ public class ExploreContentController implements Initializable {
                             trek.getTrekName().toLowerCase().contains(searchText) ||
                                     trek.getDifficulty().toLowerCase().contains(searchText) ||
                                     trek.getBestSeason().toLowerCase().contains(searchText) ||
-                                    trek.getMaxAltitude().toLowerCase().contains(searchText)
+                                    String.valueOf(trek.getMaxAltitude()).contains(searchText)
                     )
                     .collect(Collectors.toList());
         }
@@ -125,7 +121,7 @@ public class ExploreContentController implements Initializable {
 
         // Trek icon and name
         VBox nameSection = new VBox(5);
-        Label trekIcon = new Label("");
+        Label trekIcon = new Label("🏔️");
         trekIcon.setStyle("-fx-font-size: 24px;");
 
         Label nameLabel = new Label(trek.getTrekName());
@@ -137,14 +133,20 @@ public class ExploreContentController implements Initializable {
         Region spacer = new Region();
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
-        // Badges container (difficulty + discount if applicable)
+        // Badges container (difficulty + discount + altitude warning)
         HBox badgesBox = new HBox(8);
         badgesBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // NEW: Add discount badge if trek has discount
+        // Add discount badge if trek has discount
         if (trek.hasDiscount()) {
             Label discountBadge = createDiscountBadge(trek);
             badgesBox.getChildren().add(discountBadge);
+        }
+
+        // NEW: Add altitude warning badge if trek is above 3000m
+        if (trek.isHighAltitude()) {
+            Label altitudeWarningBadge = createAltitudeWarningBadge(trek);
+            badgesBox.getChildren().add(altitudeWarningBadge);
         }
 
         // Difficulty badge
@@ -168,22 +170,29 @@ public class ExploreContentController implements Initializable {
 
         durationDateBox.getChildren().addAll(durationLabel, dateLabel);
 
-        // Altitude and Season
+        // Altitude and Season with enhanced altitude display
         HBox altitudeSeasonBox = new HBox(20);
-        Label altitudeLabel = new Label("Max Altitude: " + trek.getMaxAltitude());
+
+        // Enhanced altitude display with warning text for high altitude
+        VBox altitudeSection = new VBox(2);
+        Label altitudeLabel = new Label("Max Altitude: " + trek.getMaxAltitudeString());
         altitudeLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;");
+        altitudeSection.getChildren().add(altitudeLabel);
+
+        if (trek.isHighAltitude()) {
+            Label altitudeWarningText = new Label("⚠️ High altitude - acclimatization required");
+            altitudeWarningText.setStyle("-fx-text-fill: #ff6b35; -fx-font-size: 12px; -fx-font-weight: bold;");
+            altitudeSection.getChildren().add(altitudeWarningText);
+        }
 
         Label seasonLabel = new Label("Best Season: " + trek.getBestSeason());
         seasonLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;");
 
-        altitudeSeasonBox.getChildren().addAll(altitudeLabel, seasonLabel);
+        altitudeSeasonBox.getChildren().addAll(altitudeSection, seasonLabel);
 
-        // Cost and Guide - UPDATED to show discount information
+        // Cost and Guide
         HBox costGuideBox = new HBox(20);
-
-        // NEW: Enhanced cost display with discount information
         VBox costSection = createCostSection(trek);
-
         Label guideLabel = new Label("Guide: " + extractGuideName(trek.getGuideEmail()));
         guideLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 14px;");
 
@@ -217,12 +226,47 @@ public class ExploreContentController implements Initializable {
         return card;
     }
 
-    // NEW: Create discount badge
+    // NEW: Create altitude warning badge
+    private Label createAltitudeWarningBadge(Trek trek) {
+        Label altitudeWarningBadge = new Label("HIGH ALTITUDE");
+
+        // Warning badge styling similar to discount but with warning colors
+        altitudeWarningBadge.setStyle(
+                "-fx-background-color: linear-gradient(to right, #FF4444, #CC0000); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 10px; " +
+                        "-fx-padding: 4 8; " +
+                        "-fx-background-radius: 12; " +
+                        "-fx-border-color: #AA0000; " +
+                        "-fx-border-width: 1; " +
+                        "-fx-border-radius: 12; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(255,68,68,0.4), 4, 0, 0, 1);"
+        );
+
+        // Add subtle warning animation
+        addWarningPulseEffect(altitudeWarningBadge);
+
+        return altitudeWarningBadge;
+    }
+
+    // NEW: Add warning pulse effect
+    private void addWarningPulseEffect(Label warningBadge) {
+        javafx.animation.ScaleTransition scaleTransition =
+                new javafx.animation.ScaleTransition(javafx.util.Duration.seconds(2.0), warningBadge);
+        scaleTransition.setFromX(1.0);
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(1.03);
+        scaleTransition.setToY(1.03);
+        scaleTransition.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        scaleTransition.setAutoReverse(true);
+        scaleTransition.play();
+    }
+
     private Label createDiscountBadge(Trek trek) {
         String discountText = String.format("%.0f%% OFF", trek.getDiscountPercent());
         Label discountBadge = new Label(discountText);
 
-        // Catchy discount badge styling
         discountBadge.setStyle(
                 "-fx-background-color: linear-gradient(to right, #FF6B35, #F7931E); " +
                         "-fx-text-fill: white; " +
@@ -236,29 +280,23 @@ public class ExploreContentController implements Initializable {
                         "-fx-effect: dropshadow(gaussian, rgba(255,107,53,0.4), 4, 0, 0, 1);"
         );
 
-        // Add pulsing animation effect
         addPulseEffect(discountBadge);
-
         return discountBadge;
     }
 
-    // NEW: Create enhanced cost section with discount info
     private VBox createCostSection(Trek trek) {
         VBox costSection = new VBox(2);
 
         if (trek.hasDiscount()) {
-            // Show original cost with strikethrough
             Label originalCostLabel = new Label("Was: $" + String.format("%.0f", trek.getOriginalCost()));
             originalCostLabel.setStyle("-fx-text-fill: #999999; -fx-font-size: 12px; " +
                     "-fx-strikethrough: true;");
 
-            // Show discounted cost prominently
             Label finalCostLabel = new Label("Now: $" + String.format("%.0f", trek.getCost()));
             finalCostLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold; -fx-font-size: 16px;");
 
             costSection.getChildren().addAll(originalCostLabel, finalCostLabel);
         } else {
-            // Regular cost display
             Label costLabel = new Label("Cost: $" + String.format("%.0f", trek.getCost()));
             costLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold; -fx-font-size: 16px;");
             costSection.getChildren().add(costLabel);
@@ -267,7 +305,6 @@ public class ExploreContentController implements Initializable {
         return costSection;
     }
 
-    // NEW: Add subtle pulse effect to discount badge
     private void addPulseEffect(Label discountBadge) {
         javafx.animation.ScaleTransition scaleTransition =
                 new javafx.animation.ScaleTransition(javafx.util.Duration.seconds(1.5), discountBadge);
@@ -297,9 +334,7 @@ public class ExploreContentController implements Initializable {
         if (email == null || email.isEmpty()) {
             return "Not assigned";
         }
-        // Extract name from email (before @)
         String name = email.split("@")[0];
-        // Capitalize first letter
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
@@ -324,7 +359,6 @@ public class ExploreContentController implements Initializable {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
-        // NEW: Enhanced details with discount information
         String details;
         if (trek.hasDiscount()) {
             details = String.format(
@@ -334,7 +368,7 @@ public class ExploreContentController implements Initializable {
                     Duration: %s
                     Start Date: %s
                     Difficulty: %s
-                    Maximum Altitude: %s
+                    Maximum Altitude: %d meters%s
                     
                     SPECIAL OFFER!
                     Original Price: $%.0f
@@ -351,6 +385,7 @@ public class ExploreContentController implements Initializable {
                     trek.getStartDate().format(formatter),
                     trek.getDifficulty(),
                     trek.getMaxAltitude(),
+                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
                     trek.getOriginalCost(),
                     trek.getDiscountPercent(),
                     trek.getDiscountAmount(),
@@ -368,7 +403,7 @@ public class ExploreContentController implements Initializable {
                     Duration: %s
                     Start Date: %s
                     Difficulty: %s
-                    Maximum Altitude: %s
+                    Maximum Altitude: %d meters%s
                     Cost: $%.0f
                     Best Season: %s
                     Guide: %s
@@ -379,6 +414,7 @@ public class ExploreContentController implements Initializable {
                     trek.getStartDate().format(formatter),
                     trek.getDifficulty(),
                     trek.getMaxAltitude(),
+                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
                     trek.getCost(),
                     trek.getBestSeason(),
                     extractGuideName(trek.getGuideEmail()),
@@ -387,22 +423,27 @@ public class ExploreContentController implements Initializable {
             );
         }
 
+        // Add altitude warning to details if applicable
+        if (trek.isHighAltitude()) {
+            details += "\n\n⚠️ HIGH ALTITUDE WARNING:\nThis trek reaches above 3000 meters. " +
+                    "Proper acclimatization and physical preparation are essential. " +
+                    "Consult with your doctor before booking if you have any health concerns.";
+        }
+
         detailsAlert.setContentText(details);
-        detailsAlert.getDialogPane().setPrefWidth(400);
+        detailsAlert.getDialogPane().setPrefWidth(450);
         detailsAlert.getDialogPane().setStyle("-fx-font-family: 'System'; -fx-font-size: 13px;");
 
         detailsAlert.showAndWait();
     }
 
     private void bookTrek(Trek trek) {
-        // Update user email from session before booking
         updateUserEmailFromSession();
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Book Trek");
         confirmAlert.setHeaderText("Confirm Booking");
 
-        // NEW: Enhanced booking confirmation with discount info
         String bookingDetails;
         if (trek.hasDiscount()) {
             bookingDetails = String.format(
@@ -410,19 +451,24 @@ public class ExploreContentController implements Initializable {
                             "%s\n" +
                             "Starting: %s\n" +
                             "Duration: %s\n" +
+                            "Max Altitude: %d meters%s\n" +
                             "DISCOUNT APPLIED: %.1f%% OFF!\n" +
                             "Original Price: $%.0f\n" +
                             "Your Price: $%.0f (You save $%.0f!)\n" +
                             "Guide: %s\n\n" +
+                            "%s" +
                             "Do you want to proceed with this discounted booking?",
                     trek.getTrekName(),
                     trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
                     trek.getDuration(),
+                    trek.getMaxAltitude(),
+                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
                     trek.getDiscountPercent(),
                     trek.getOriginalCost(),
                     trek.getCost(),
                     trek.getDiscountAmount(),
-                    extractGuideName(trek.getGuideEmail())
+                    extractGuideName(trek.getGuideEmail()),
+                    trek.isHighAltitude() ? "⚠️ HIGH ALTITUDE WARNING: This trek requires proper acclimatization.\n\n" : ""
             );
         } else {
             bookingDetails = String.format(
@@ -430,14 +476,19 @@ public class ExploreContentController implements Initializable {
                             "%s\n" +
                             "Starting: %s\n" +
                             "Duration: %s\n" +
+                            "Max Altitude: %d meters%s\n" +
                             "Total Cost: $%.0f\n" +
                             "Guide: %s\n\n" +
+                            "%s" +
                             "Do you want to proceed with the booking?",
                     trek.getTrekName(),
                     trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
                     trek.getDuration(),
+                    trek.getMaxAltitude(),
+                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
                     trek.getCost(),
-                    extractGuideName(trek.getGuideEmail())
+                    extractGuideName(trek.getGuideEmail()),
+                    trek.isHighAltitude() ? "⚠️ HIGH ALTITUDE WARNING: This trek requires proper acclimatization.\n\n" : ""
             );
         }
 
@@ -458,16 +509,23 @@ public class ExploreContentController implements Initializable {
                                 "Your booking for %s has been confirmed!\n\n" +
                                         "Congratulations! You saved $%.0f with our %.1f%% discount!\n" +
                                         "Final Amount Paid: $%.0f\n\n" +
-                                        "Booking Status: Confirmed\n",
+                                        "Booking Status: Confirmed\n" +
+                                        "%s",
                                 trek.getTrekName(),
                                 trek.getDiscountAmount(),
                                 trek.getDiscountPercent(),
-                                trek.getCost()
+                                trek.getCost(),
+                                trek.isHighAltitude() ? "\n⚠️ Remember: This is a high-altitude trek. Please prepare accordingly!" : ""
                         );
                     } else {
                         successMessage = String.format(
-                                "Your booking for %s has been confirmed!\n\n",
-                                trek.getTrekName()
+                                "Your booking for %s has been confirmed!\n\n" +
+                                        "Amount Paid: $%.0f\n" +
+                                        "Booking Status: Confirmed\n" +
+                                        "%s",
+                                trek.getTrekName(),
+                                trek.getCost(),
+                                trek.isHighAltitude() ? "\n⚠️ Remember: This is a high-altitude trek. Please prepare accordingly!" : ""
                         );
                     }
 
@@ -486,15 +544,10 @@ public class ExploreContentController implements Initializable {
 
     private boolean createBooking(Trek trek) {
         try {
-            // Get the latest user email from session right before creating booking
             String userEmailToUse = getCurrentUserEmailFromSession();
-
             System.out.println("Creating booking with user email: " + userEmailToUse);
 
-            // Create new booking with the correct user email
             Booking booking = new Booking(trek.getId(), userEmailToUse, trek.getGuideEmail(), trek.getStartDate());
-
-            // Save to JSON file
             boolean success = jsonHandler.addBooking(booking);
 
             if (success) {
@@ -511,7 +564,6 @@ public class ExploreContentController implements Initializable {
         }
     }
 
-    // Add this helper method to get current user email from session
     private String getCurrentUserEmailFromSession() {
         try {
             UserSession userSession = UserSession.getInstance();
@@ -521,11 +573,11 @@ public class ExploreContentController implements Initializable {
                 return currentUser.getEmail();
             } else {
                 System.err.println("No user found in session, using fallback email");
-                return currentUserEmail; // fallback to the field value
+                return currentUserEmail;
             }
         } catch (Exception e) {
             System.err.println("Error getting user email from session: " + e.getMessage());
-            return currentUserEmail; // fallback to the field value
+            return currentUserEmail;
         }
     }
 }

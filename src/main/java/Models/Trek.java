@@ -10,16 +10,16 @@ public class Trek {
     private transient LocalDate startDate;
     private String startDateStr;
     private String difficulty;
-    private String maxAltitude;
-    private double cost;              // This will store the final cost (after discount)
+    private int maxAltitude;  // Changed from String to int
+    private double cost;
     private String bestSeason;
     private String guideEmail;
     private int attractionId;
 
-    // NEW: Discount-related fields
-    private boolean hasDiscount;      // Boolean flag to indicate if trek has discount
-    private double originalCost;      // Original cost before discount
-    private double discountPercent;   // Discount percentage applied
+    // Discount-related fields
+    private boolean hasDiscount;
+    private double originalCost;
+    private double discountPercent;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -28,22 +28,22 @@ public class Trek {
         this.discountPercent = 0.0;
     }
 
-    public Trek(String trekName, String duration, LocalDate startDate, String difficulty, String maxAltitude,
+    public Trek(String trekName, String duration, LocalDate startDate, String difficulty, int maxAltitude,
                 double cost, String bestSeason, String guideEmail, int attractionId) {
         this.trekName = trekName;
         this.duration = duration;
         this.startDate = startDate;
         this.startDateStr = startDate.format(FORMATTER);
         this.difficulty = difficulty;
-        this.maxAltitude = maxAltitude;
-        this.cost = cost;  // This is the final cost
+        this.maxAltitude = maxAltitude;  // Now integer
+        this.cost = cost;
         this.bestSeason = bestSeason;
         this.guideEmail = guideEmail;
         this.attractionId = attractionId;
 
         // Initialize discount fields
         this.hasDiscount = false;
-        this.originalCost = cost;  // Default original cost to final cost
+        this.originalCost = cost;
         this.discountPercent = 0.0;
     }
 
@@ -81,10 +81,21 @@ public class Trek {
     public String getDifficulty() { return difficulty; }
     public void setDifficulty(String difficulty) { this.difficulty = difficulty; }
 
-    public String getMaxAltitude() { return maxAltitude; }
-    public void setMaxAltitude(String maxAltitude) { this.maxAltitude = maxAltitude; }
+    // Updated altitude methods to work with integer
+    public int getMaxAltitude() { return maxAltitude; }
+    public void setMaxAltitude(int maxAltitude) { this.maxAltitude = maxAltitude; }
 
-    public double getCost() { return cost; }  // Returns final cost
+    // Helper method for display purposes
+    public String getMaxAltitudeString() {
+        return maxAltitude + "m";
+    }
+
+    // Method to check if trek is high altitude
+    public boolean isHighAltitude() {
+        return maxAltitude > 3000;
+    }
+
+    public double getCost() { return cost; }
     public void setCost(double cost) { this.cost = cost; }
 
     public String getBestSeason() { return bestSeason; }
@@ -96,9 +107,9 @@ public class Trek {
     public int getAttractionId() { return attractionId; }
     public void setAttractionId(int attractionId) { this.attractionId = attractionId; }
 
-    // NEW: Discount-related getters/setters
+    // Discount-related getters/setters
     public boolean hasDiscount() { return hasDiscount; }
-    public boolean getHasDiscount() { return hasDiscount; }  // For JSON serialization
+    public boolean getHasDiscount() { return hasDiscount; }
     public void setHasDiscount(boolean hasDiscount) { this.hasDiscount = hasDiscount; }
 
     public double getOriginalCost() { return originalCost; }
@@ -106,7 +117,7 @@ public class Trek {
 
     public double getDiscountPercent() { return discountPercent; }
     public void setDiscountPercent(double discountPercent) {
-        this.discountPercent = Math.max(0, Math.min(100, discountPercent)); // Clamp between 0-100
+        this.discountPercent = Math.max(0, Math.min(100, discountPercent));
     }
 
     // Utility methods
@@ -118,7 +129,7 @@ public class Trek {
     }
 
     public double getFinalCost() {
-        return cost;  // The cost field stores the final cost
+        return cost;
     }
 
     // Formatted cost methods
@@ -151,6 +162,7 @@ public class Trek {
                 ", trekName='" + trekName + '\'' +
                 ", startDate=" + getStartDate() +
                 ", difficulty='" + difficulty + '\'' +
+                ", maxAltitude=" + maxAltitude + "m" +
                 ", finalCost=" + cost +
                 ", hasDiscount=" + hasDiscount +
                 (hasDiscount ? ", originalCost=" + originalCost + ", discountPercent=" + discountPercent : "") +

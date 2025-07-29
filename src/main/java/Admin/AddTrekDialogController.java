@@ -50,6 +50,31 @@ public class AddTrekDialogController {
 
         // Setup discount functionality
         setupDiscountControls();
+
+        // Setup altitude validation
+        setupAltitudeValidation();
+    }
+
+    private void setupAltitudeValidation() {
+        // Only allow numeric input for altitude field
+        maxAltitudeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*")) {
+                maxAltitudeField.setText(oldVal);
+            } else {
+                try {
+                    if (!newVal.isEmpty()) {
+                        int altitude = Integer.parseInt(newVal);
+                        if (altitude < 0) {
+                            maxAltitudeField.setText("0");
+                        } else if (altitude > 10000) { // Reasonable upper limit
+                            maxAltitudeField.setText("10000");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    maxAltitudeField.setText(oldVal);
+                }
+            }
+        });
     }
 
     private void setupDiscountControls() {
@@ -133,6 +158,19 @@ public class AddTrekDialogController {
         }
 
         try {
+            // Parse and validate altitude as integer
+            int maxAltitude;
+            try {
+                maxAltitude = Integer.parseInt(maxAltitudeField.getText().trim());
+                if (maxAltitude < 0) {
+                    showAlert("Validation Error", "Altitude cannot be negative.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Validation Error", "Please enter a valid altitude in meters (numbers only).");
+                return;
+            }
+
             // Parse original cost
             double originalCost = Double.parseDouble(costField.getText().trim());
 
@@ -182,14 +220,14 @@ public class AddTrekDialogController {
                 return;
             }
 
-            // Create new trek with calculated final cost
+            // Create new trek with numeric altitude
             Trek trek = new Trek(
                     trekNameField.getText().trim(),
                     durationField.getText().trim(),
                     startDatePicker.getValue(),
                     difficultyComboBox.getValue(),
-                    maxAltitudeField.getText().trim(),
-                    finalCost,  // Store the final cost (after discount) as the main cost
+                    maxAltitude,  // Now passing integer instead of string
+                    finalCost,
                     bestSeasonField.getText().trim(),
                     guideEmail,
                     attractionId
@@ -203,17 +241,23 @@ public class AddTrekDialogController {
             // Add to parent controller
             parentController.addTrek(trek);
 
-            // Show success message
+            // Show success message with altitude warning if applicable
+            String successMessage;
             if (hasDiscount) {
-                showSuccessAlert("Trek Added Successfully",
-                        String.format("Trek '%s' has been added with %.1f%% discount.\nOriginal Cost: $%.2f\nFinal Cost: $%.2f",
-                                trek.getTrekName(), discountPercent, originalCost, finalCost));
+                successMessage = String.format("Trek '%s' has been added with %.1f%% discount.\nOriginal Cost: $%.2f\nFinal Cost: $%.2f",
+                        trek.getTrekName(), discountPercent, originalCost, finalCost);
             } else {
-                showSuccessAlert("Trek Added Successfully",
-                        String.format("Trek '%s' has been added.\nCost: $%.2f",
-                                trek.getTrekName(), finalCost));
+                successMessage = String.format("Trek '%s' has been added.\nCost: $%.2f",
+                        trek.getTrekName(), finalCost);
             }
 
+            // Add altitude warning for admin awareness
+            if (maxAltitude > 3000) {
+                successMessage += String.format("\n\nNOTE: This trek reaches %d meters altitude. " +
+                        "Tourists will see a high-altitude warning for this trek.", maxAltitude);
+            }
+
+            showSuccessAlert("Trek Added Successfully", successMessage);
             closeDialog();
 
         } catch (NumberFormatException e) {

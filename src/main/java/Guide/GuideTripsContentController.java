@@ -202,23 +202,6 @@ public class GuideTripsContentController implements Initializable {
 
         // Altitude warning if high altitude
         VBox warningBox = new VBox();
-        if (trek.getMaxAltitude() != null && !trek.getMaxAltitude().isEmpty()) {
-            try {
-                String altitudeStr = trek.getMaxAltitude().replaceAll("[^0-9]", "");
-                if (!altitudeStr.isEmpty()) {
-                    int altitude = Integer.parseInt(altitudeStr);
-                    if (altitude > 3000) {
-                        Label warningLabel = new Label("High Altitude: " + trek.getMaxAltitude());
-                        warningLabel.setStyle("-fx-text-fill: #FF5722; -fx-font-size: 11; " +
-                                "-fx-background-color: #FFF3E0; -fx-background-radius: 15; " +
-                                "-fx-padding: 4 8;");
-                        warningBox.getChildren().add(warningLabel);
-                    }
-                }
-            } catch (NumberFormatException e) {
-                // Ignore if altitude parsing fails
-            }
-        }
 
         // Action buttons
         HBox buttonBox = new HBox(10);
@@ -284,7 +267,7 @@ public class GuideTripsContentController implements Initializable {
                 trek.getDuration(),
                 trek.getStartDate() != null ? trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")) : "Not set",
                 trek.getDifficulty(),
-                trek.getMaxAltitude() != null ? trek.getMaxAltitude() : "Not specified",
+                (trek.getMaxAltitude() == 0) ? trek.getMaxAltitude() : "Not specified",
                 trek.getCost(),
                 trek.getBestSeason() != null ? trek.getBestSeason() : "Not specified",
                 attractionName,
