@@ -3,50 +3,117 @@
     "id": "1753605236004",
     "firstName": "Sarun",
     "lastName": "Maharjan",
-    "email": "SarunMaharjan@gmail.com",
-    "phone": "9869027044",
-    "password": "1234",
-    "userType": "user",
-    "createdAt": "2025-07-27T14:18:56.0039254"
-  },
-  {
-    "id": "1753605236006",
-    "firstName": "Samuel",
-    "lastName": "Jacksons",
     "email": "admin@admin",
     "phone": "9869027044",
     "password": "1234",
-    "userType": "admin",
-    "createdAt": "2025-07-27T14:18:56.0039254"
+    "userType": "admin"
   },
   {
-    "id": "1753614567653",
+    "id": "1753808332743",
+    "firstName": "Sarun",
+    "lastName": "Maharjan",
+    "email": "SarunMaharjan@gmail.com",
+    "phone": "9869027033",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809429617",
     "firstName": "Saugat",
     "lastName": "Chaudhary",
-    "email": "Soggy@gmail.com",
-    "phone": "9869045066",
+    "email": "saugatchaudhary@gmail.com",
+    "phone": "9869027011",
     "password": "1234",
-    "userType": "user",
-    "createdAt": "2025-07-27T16:54:27.653874934"
+    "userType": "user"
   },
   {
-    "id": "1753666811977",
-    "firstName": "Bijee",
-    "lastName": "Dangol",
-    "email": "bijeeedangol@hotmadam.com",
-    "phone": "9863909977",
+    "id": "1753809452477",
+    "firstName": "Bishes",
+    "lastName": "Maharjan",
+    "email": "bishesmaharjan@gmail.com",
+    "phone": "9869027012",
     "password": "1234",
-    "userType": "user",
-    "createdAt": "2025-07-28T07:25:11.976992996"
+    "userType": "user"
   },
   {
-    "id": "1753713593792",
-    "firstName": "Test",
-    "lastName": "Test",
-    "email": "Test@gmail.com",
-    "phone": "9089798761",
+    "id": "1753809487174",
+    "firstName": "Pramod",
+    "lastName": "Khatri",
+    "email": "pramodjungkhatri@gmail.com",
+    "phone": "9869027013",
     "password": "1234",
-    "userType": "user",
-    "createdAt": "2025-07-28T20:24:53.792550477"
+    "userType": "user"
+  },
+  {
+    "id": "1753809509805",
+    "firstName": "Samaya",
+    "lastName": "Tiwari",
+    "email": "samayatiwari@gmail.com",
+    "phone": "9869027015",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809534844",
+    "firstName": "Aayush",
+    "lastName": "Shrestha",
+    "email": "aayushshrestha@gmail.com",
+    "phone": "9869027016",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809585691",
+    "firstName": "Krishu",
+    "lastName": "Maharjan",
+    "email": "krishumaharjan@gmail.com",
+    "phone": "9869027017",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809609797",
+    "firstName": "Runa",
+    "lastName": "Maphu",
+    "email": "runamaphu@gmail.com",
+    "phone": "9869027019",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809644361",
+    "firstName": "Prabhash",
+    "lastName": "Khadka",
+    "email": "prabhashkhadka@gmail.com",
+    "phone": "9869027021",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809686363",
+    "firstName": "John",
+    "lastName": "Shrestha",
+    "email": "johnshrestha@gmail.com",
+    "phone": "9869027029",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809725121",
+    "firstName": "Angel",
+    "lastName": "Shakya",
+    "email": "angelshakya@gmail.com",
+    "phone": "9869027031",
+    "password": "1234",
+    "userType": "user"
+  },
+  {
+    "id": "1753809756878",
+    "firstName": "Ishleen",
+    "lastName": "Sing Virdi",
+    "email": "ishleensinghvirdi@gmail.com",
+    "phone": "9869027032",
+    "password": "1234",
+    "userType": "user"
   }
 ]

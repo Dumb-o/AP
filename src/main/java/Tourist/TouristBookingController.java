@@ -211,20 +211,20 @@ public class TouristBookingController implements Initializable {
         detailsAlert.setHeaderText(bookingData.getTrekName());
 
         String details = String.format(
-                "🏔️ TREK INFORMATION:\n" +
+                "TREK INFORMATION:\n" +
                         "Trek: %s\n" +
                         "Attraction: %s\n" +
                         "Start Date: %s\n\n" +
-                        "👤 TOURIST INFORMATION:\n" +
+                        "TOURIST INFORMATION:\n" +
                         "Name: %s\n\n" +
-                        "👨‍🦲 GUIDE INFORMATION:\n" +
+                        "GUIDE INFORMATION:\n" +
                         "Guide: %s\n" +
                         "Email: %s\n\n" +
-                        "📋 BOOKING INFORMATION:\n" +
+                        "BOOKING INFORMATION:\n" +
                         "Booking ID: %s\n" +
                         "Status: %s\n" +
                         "Cost: %s\n\n" +
-                        "📞 CONTACT:\n" +
+                        "CONTACT:\n" +
                         "For any queries, please contact your guide or our support team.",
                 bookingData.getTrekName(),
                 bookingData.getAttractionName(),

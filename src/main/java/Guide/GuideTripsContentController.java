@@ -161,7 +161,7 @@ public class GuideTripsContentController implements Initializable {
         HBox locationBox = new HBox(8);
         locationBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label locationIcon = new Label("📍");
+        Label locationIcon = new Label("");
         Label locationLabel = new Label(locationText);
         locationLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 13;");
 
@@ -174,7 +174,7 @@ public class GuideTripsContentController implements Initializable {
         // Duration
         HBox durationBox = new HBox(5);
         durationBox.setAlignment(Pos.CENTER_LEFT);
-        Label durationIcon = new Label("⏱️");
+        Label durationIcon = new Label("");
         Label durationLabel = new Label(trek.getDuration());
         durationLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12;");
         durationBox.getChildren().addAll(durationIcon, durationLabel);
@@ -182,7 +182,7 @@ public class GuideTripsContentController implements Initializable {
         // Start date
         HBox dateBox = new HBox(5);
         dateBox.setAlignment(Pos.CENTER_LEFT);
-        Label dateIcon = new Label("📅");
+        Label dateIcon = new Label("");
         String dateText = trek.getStartDate() != null ?
                 trek.getStartDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) :
                 "Date TBD";
@@ -193,7 +193,7 @@ public class GuideTripsContentController implements Initializable {
         // Cost
         HBox costBox = new HBox(5);
         costBox.setAlignment(Pos.CENTER_LEFT);
-        Label costIcon = new Label("💰");
+        Label costIcon = new Label("");
         Label costLabel = new Label("Rs. " + String.format("%.0f", trek.getCost()));
         costLabel.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 12; -fx-font-weight: bold;");
         costBox.getChildren().addAll(costIcon, costLabel);
@@ -208,7 +208,7 @@ public class GuideTripsContentController implements Initializable {
                 if (!altitudeStr.isEmpty()) {
                     int altitude = Integer.parseInt(altitudeStr);
                     if (altitude > 3000) {
-                        Label warningLabel = new Label("⚠️ High Altitude: " + trek.getMaxAltitude());
+                        Label warningLabel = new Label("High Altitude: " + trek.getMaxAltitude());
                         warningLabel.setStyle("-fx-text-fill: #FF5722; -fx-font-size: 11; " +
                                 "-fx-background-color: #FFF3E0; -fx-background-radius: 15; " +
                                 "-fx-padding: 4 8;");

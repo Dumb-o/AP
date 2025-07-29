@@ -1,42 +1,50 @@
 [
   {
     "id": 1,
-    "name": "Pashupatinath Ghumne",
-    "location": "Pashupati, Kathmandu",
-    "difficulty": "Easy",
-    "type": "Heritage Site",
-    "remarks": "Ramro xa thau"
+    "name": "Mount Everest Base Camp",
+    "location": "Solukhumbhu",
+    "difficulty": "Hard",
+    "type": "Mountain Trek",
+    "remarks": "World-famous trekking destination; highest mountain base camp in the world."
   },
   {
     "id": 2,
-    "name": "Manasalu Circuit",
-    "location": "Manasalu, Somewhereidk",
+    "name": "Annapurna Base Camp",
+    "location": "Annapurna Region",
     "difficulty": "Hard",
-    "type": "Trekking",
-    "remarks": "It is a good place, good for trekking and moutaineering"
+    "type": "Mountain Trek",
+    "remarks": "Stunning views of Annapurna range; popular for moderate-level trekkers."
   },
   {
     "id": 3,
-    "name": "More Places Testing",
-    "location": "Testing, Testing",
-    "difficulty": "Moderate",
-    "type": "Mountain",
-    "remarks": "I dont know"
+    "name": "Pashupatinath Temple",
+    "location": "Kathmandu",
+    "difficulty": "Easy",
+    "type": "Religious Site",
+    "remarks": "Sacred Hindu Temple; UNESCO World Heritage Site."
   },
   {
     "id": 4,
-    "name": "Four",
-    "location": "Four Four",
-    "difficulty": "Hard",
-    "type": "Four",
-    "remarks": "Four Four"
+    "name": "Boudhanath Stupa",
+    "location": "Kathmandu",
+    "difficulty": "Easy",
+    "type": "Religious Site",
+    "remarks": "One of the largest stupas in the world; peaceful and spiritual."
   },
   {
     "id": 5,
-    "name": "Final Test",
-    "location": "uahsdabdjkas,asdnakubdasd",
+    "name": "Swayambhunath",
+    "location": "Kathmandu",
     "difficulty": "Easy",
-    "type": "ugadhajdhda",
-    "remarks": "jbhasbdajdwjbadkshd"
+    "type": "Religious Site",
+    "remarks": "Buddhist stupa with great city views; lots of monkeys."
+  },
+  {
+    "id": 6,
+    "name": "Rara Lake",
+    "location": "Magu",
+    "difficulty": "Moderate",
+    "type": "Lake",
+    "remarks": "Nepal\u0027s largest lake; remote and serene"
   }
 ]

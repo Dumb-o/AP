@@ -1,26 +1,24 @@
 [
   {
-    "proficiencyLanguage": "English, Hindi, Newari",
-    "experience": "As a guide, I’ve led diverse groups through captivating landscapes, sharing knowledge and stories that bring history and nature to life. I thrive on connecting with people, ensuring their safety and enjoyment while creating memorable experiences. Each journey deepens my passion for exploration and cultural exchange.",
-    "id": "1753605320294",
+    "proficiencyLanguage": "Hindi, Nepali, ,English",
+    "experience": "I would love to work with you. I am well versed in linguistics.",
+    "id": "1753808423791",
     "firstName": "Sarun",
     "lastName": "Maharjan",
     "email": "sarun-maharjan@guide.com",
-    "phone": "9869027044",
+    "phone": "9869027033",
     "password": "1234",
-    "userType": "guide",
-    "createdAt": "2025-07-27T14:20:20.294423655"
+    "userType": "guide"
   },
   {
-    "proficiencyLanguage": "Newari, Hindi, Nepali, English, Chinese, Japanese, French, Korean, Malayanam",
-    "experience": "Works well under pressure",
-    "id": "1753666926765",
+    "proficiencyLanguage": "Hindi, English, French, Korean",
+    "experience": "I would love to work with you. I am very an outgoing, and friendly, ready to help lead you on an adventure.",
+    "id": "1753809823194",
     "firstName": "Rija",
     "lastName": "Bhomi",
-    "email": "rijabhomi@guide.com",
-    "phone": "9800000000",
+    "email": "rija-bhomi@guide.com",
+    "phone": "9869027099",
     "password": "1234",
-    "userType": "guide",
-    "createdAt": "2025-07-28T07:27:06.76491886"
+    "userType": "guide"
   }
 ]

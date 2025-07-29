@@ -6,104 +6,181 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="20.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Admin.DashboardContentController">
+<VBox spacing="25.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Admin.DashboardContentController">
     <padding>
         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
     </padding>
 
-    <!-- Welcome, Section -->
-    <VBox spacing="10.0">
-        <Label fx:id="welcomeLabel" text="Namaste Admin," textFill="#333333">
+    <!-- Colored Welcome Section (KEPT) -->
+    <VBox spacing="15.0" style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2); -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);">
+        <Label fx:id="welcomeLabel" text="Namaste Admin," textFill="white">
             <font>
-                <Font name="System Bold" size="24.0" />
+                <Font name="System Bold" size="32.0" />
             </font>
         </Label>
-        <Label text="Here's what's happening with your trekking business today." textFill="#666666">
+        <Label text="Here's what's happening with your trekking business today." textFill="rgba(255,255,255,0.9)">
             <font>
-                <Font size="14.0" />
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <Label fx:id="currentDateLabel" text="Dashboard Overview" textFill="rgba(255,255,255,0.8)">
+            <font>
+                <Font size="16.0" />
             </font>
         </Label>
     </VBox>
 
-    <!-- Statistics Cards -->
-    <HBox spacing="20.0">
-        <!-- Total Tourists Card -->
-        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+    <!-- Plain Statistics Cards (REMOVED COLORS) -->
+    <HBox spacing="25.0">
+        <!-- Total Tourists Card - Plain -->
+        <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e0e0e0; -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <ImageView fitHeight="51.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../Images/Icons/tourist-icon.png" />
+               </image>
+            </ImageView>
+                <VBox spacing="5.0">
+                    <Label text="Total Tourists" textFill="#333333">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                    <Label text="Registered adventurers" textFill="#666666">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
             <Label fx:id="totalTouristsLabel" text="0" textFill="#333333">
                 <font>
-                    <Font name="System Bold" size="28.0" />
-                </font>
-            </Label>
-            <Label text="Total Tourists" textFill="#666666">
-                <font>
-                    <Font size="14.0" />
+                    <Font name="System Bold" size="42.0" />
                 </font>
             </Label>
         </VBox>
 
-        <!-- Active Guides Card -->
-        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+        <!-- Active Guides Card - Plain -->
+        <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e0e0e0; -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <ImageView fitHeight="51.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../Images/Icons/guide-icon.png" />
+               </image>
+            </ImageView>
+                <VBox spacing="5.0">
+                    <Label text="Active Guides" textFill="#333333">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                    <Label text="Expert mountaineers" textFill="#666666">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
             <Label fx:id="activeGuidesLabel" text="0" textFill="#333333">
                 <font>
-                    <Font name="System Bold" size="28.0" />
-                </font>
-            </Label>
-            <Label text="Active Guides" textFill="#666666">
-                <font>
-                    <Font size="14.0" />
+                    <Font name="System Bold" size="42.0" />
                 </font>
             </Label>
         </VBox>
 
-        <!-- Total Emergencies Card -->
-        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+        <!-- Total Emergencies Card - Plain -->
+        <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e0e0e0; -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <ImageView fitHeight="51.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../Images/Icons/emergency-icon.png" />
+               </image>
+            </ImageView>
+                <VBox spacing="5.0">
+                    <Label text="Total Emergencies" textFill="#333333">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                    <Label text="Safety incidents" textFill="#666666">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
             <Label fx:id="totalEmergenciesLabel" text="0" textFill="#e53e3e">
                 <font>
-                    <Font name="System Bold" size="28.0" />
-                </font>
-            </Label>
-            <Label text="Total Emergencies" textFill="#666666">
-                <font>
-                    <Font size="14.0" />
+                    <Font name="System Bold" size="42.0" />
                 </font>
             </Label>
         </VBox>
     </HBox>
 
     <!-- Main Content Row -->
-    <HBox spacing="20.0" VBox.vgrow="ALWAYS">
-        <!-- Booking Trends Chart -->
-        <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Label text="Booking Trends by Attraction" textFill="#333333">
-                <font>
-                    <Font name="System Bold" size="18.0" />
-                </font>
-            </Label>
+    <HBox spacing="30.0" VBox.vgrow="ALWAYS">
+        <!-- Simplified Booking Trends Chart (REMOVED SUMMARY) -->
+        <VBox spacing="20.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e0e0e0; -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+            <!-- Chart Title -->
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <Label style="-fx-font-size: 24px;" text="📊" />
+                <VBox spacing="5.0">
+                    <Label text="Booking Trends by Attraction" textFill="#333333">
+                        <font>
+                            <Font name="System Bold" size="22.0" />
+                        </font>
+                    </Label>
+                    <Label text="Popular destinations and booking statistics" textFill="#666666">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
 
-            <BarChart fx:id="bookingTrendsChart" prefHeight="300.0" VBox.vgrow="ALWAYS">
+            <Separator style="-fx-background-color: #f0f0f0;" />
+
+            <!-- Chart Only (NO SUMMARY) -->
+            <BarChart fx:id="bookingTrendsChart" legendVisible="false" prefHeight="400.0" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                 <xAxis>
-                    <CategoryAxis side="BOTTOM" />
+                    <CategoryAxis side="BOTTOM" style="-fx-tick-label-fill: #333333; -fx-tick-label-font-size: 14px; -fx-tick-label-rotation: 0;" tickLabelRotation="0" />
                 </xAxis>
                 <yAxis>
-                    <NumberAxis side="LEFT" />
+                    <NumberAxis side="LEFT" style="-fx-tick-label-fill: #333333; -fx-tick-label-font-size: 14px;" />
                 </yAxis>
             </BarChart>
         </VBox>
 
-        <!-- Recent Activity -->
-        <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
-            <Label text="Recent Activity" textFill="#333333">
-                <font>
-                    <Font name="System Bold" size="18.0" />
-                </font>
-            </Label>
+        <!-- Simplified Recent Activity Panel (REMOVED COUNTERS) -->
+        <VBox prefWidth="400.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e0e0e0; -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <Label style="-fx-font-size: 24px;" text="⚡" />
+                <VBox spacing="5.0">
+                    <Label text="Recent Activity" textFill="#333333">
+                        <font>
+                            <Font name="System Bold" size="22.0" />
+                        </font>
+                    </Label>
+                    <Label text="Latest system events and updates" textFill="#666666">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
 
-            <ScrollPane fitToWidth="true" prefHeight="300.0" style="-fx-background-color: transparent; -fx-border-color: transparent;">
-                <VBox fx:id="activityList" spacing="10.0" />
+            <Separator style="-fx-background-color: #f0f0f0;" />
+
+            <!-- Activity List Only (NO COUNTERS) -->
+            <ScrollPane fitToWidth="true" prefHeight="450.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-background: transparent;">
+                <VBox fx:id="activityList" spacing="20.0" style="-fx-padding: 10;" />
             </ScrollPane>
         </VBox>
     </HBox>
