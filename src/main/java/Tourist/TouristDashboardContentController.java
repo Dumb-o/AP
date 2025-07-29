@@ -12,6 +12,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+import Models.Booking;
+import Models.Trek;
+import Models.Attraction;
+import Models.User;
+import Session.UserSession;
+import Storage.AdminJSONHandler;
+import java.util.List;
+import java.util.Comparator;
+
 public class TouristDashboardContentController implements Initializable {
 
     @FXML
@@ -41,11 +50,21 @@ public class TouristDashboardContentController implements Initializable {
     @FXML
     private GridPane calendarGrid;
 
+    // Sample data - in real application, this would come from database
     private TrekBooking upcomingTrek;
     private int activeBookingsCount = 0;
 
+    private AdminJSONHandler jsonHandler;
+    private UserSession userSession;
+    private User currentUser;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize handlers and session
+        jsonHandler = new AdminJSONHandler();
+        userSession = UserSession.getInstance();
+        currentUser = userSession.getCurrentUser();
+
         setupWelcomeMessage();
         loadUpcomingTrek();
         updateActiveTripsCount();
@@ -53,10 +72,12 @@ public class TouristDashboardContentController implements Initializable {
     }
 
     private void setupWelcomeMessage() {
-        // You can customize this based on time of day
-        LocalDate now = LocalDate.now();
         String timeGreeting = getTimeBasedGreeting();
-        welcomeLabel.setText(timeGreeting + " Tourist,");
+        if (currentUser != null) {
+            welcomeLabel.setText(timeGreeting + " " + currentUser.getFirstName() + ",");
+        } else {
+            welcomeLabel.setText(timeGreeting + " Tourist,");
+        }
     }
 
     private String getTimeBasedGreeting() {
@@ -176,14 +197,90 @@ public class TouristDashboardContentController implements Initializable {
 
     // Mock methods - replace with actual database calls
     private TrekBooking getUpcomingTrekFromDatabase() {
-        // Return null for now - in real app, query database for upcoming bookings
-        // return new TrekBooking("Everest Base Camp", "Nepal", "Easy", "A beautiful trek to the base camp of Mount Everest.");
-        return null;
+        try {
+            if (currentUser == null) {
+                System.err.println("No user logged in");
+                return null;
+            }
+
+            String userEmail = currentUser.getEmail();
+            System.out.println("Loading upcoming trek for user: " + userEmail);
+
+            // Get user's bookings
+            List<Booking> userBookings = jsonHandler.getBookingsByUserEmail(userEmail);
+
+            if (userBookings.isEmpty()) {
+                System.out.println("No bookings found for user");
+                return null;
+            }
+
+            // Find the next upcoming trek (earliest start date that's in the future or today)
+            LocalDate today = LocalDate.now();
+
+            Booking upcomingBooking = userBookings.stream()
+                    .filter(booking -> {
+                        Trek trek = jsonHandler.getTrekById(booking.getTrekId());
+                        return trek != null && !trek.getStartDate().isBefore(today);
+                    })
+                    .min(Comparator.comparing(booking -> {
+                        Trek trek = jsonHandler.getTrekById(booking.getTrekId());
+                        return trek != null ? trek.getStartDate() : LocalDate.MAX;
+                    }))
+                    .orElse(null);
+
+            if (upcomingBooking == null) {
+                System.out.println("No upcoming treks found");
+                return null;
+            }
+
+            // Get trek and attraction details
+            Trek trek = jsonHandler.getTrekById(upcomingBooking.getTrekId());
+            if (trek == null) {
+                System.err.println("Trek not found for booking: " + upcomingBooking.getBookingId());
+                return null;
+            }
+
+            Attraction attraction = jsonHandler.getAttractionById(trek.getAttractionId());
+            String location = (attraction != null) ? attraction.getLocation() : "Unknown Location";
+            String description = (attraction != null) ? attraction.getRemarks() : "No description available.";
+
+            TrekBooking trekBooking = new TrekBooking(
+                    trek.getTrekName(),
+                    location,
+                    trek.getDifficulty(),
+                    description
+            );
+
+            trekBooking.setStartDate(trek.getStartDate());
+
+            System.out.println("Found upcoming trek: " + trek.getTrekName());
+            return trekBooking;
+
+        } catch (Exception e) {
+            System.err.println("Error loading upcoming trek: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private int getActiveBookingsCount() {
-        // Return 0 for now - in real app, query database for active bookings count
-        return 0;
+        try {
+            if (currentUser == null) {
+                System.err.println("No user logged in");
+                return 0;
+            }
+
+            String userEmail = currentUser.getEmail();
+            List<Booking> userBookings = jsonHandler.getBookingsByUserEmail(userEmail);
+
+            System.out.println("Found " + userBookings.size() + " total bookings for user");
+            return userBookings.size();
+
+        } catch (Exception e) {
+            System.err.println("Error loading active bookings count: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     // Method to refresh dashboard data
@@ -233,5 +330,20 @@ public class TouristDashboardContentController implements Initializable {
 
         public LocalDate getEndDate() { return endDate; }
         public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    }
+
+    // Method to refresh dashboard with real data
+    public void refreshDashboardData() {
+        // Reload user session in case it changed
+        currentUser = userSession.getCurrentUser();
+
+        // Refresh all dashboard components
+        setupWelcomeMessage();
+        loadUpcomingTrek();
+        updateActiveTripsCount();
+        setupCalendar();
+
+        System.out.println("Dashboard data refreshed for user: " +
+                (currentUser != null ? currentUser.getEmail() : "null"));
     }
 }
