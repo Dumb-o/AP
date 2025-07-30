@@ -22,6 +22,7 @@
         </Label>
         <Region HBox.hgrow="ALWAYS" />
         <TextField fx:id="searchField" prefWidth="250.0" promptText="Search tourists..." style="-fx-background-radius: 5;" />
+      <Button fx:id="addTourist" mnemonicParsing="false" style="-fx-background-color: #3C7EBD;" text="Add Tourist" textFill="WHITE" onAction = "#addTourist"/>
         <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
     </HBox>
 

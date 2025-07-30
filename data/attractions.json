@@ -46,5 +46,13 @@
     "difficulty": "Moderate",
     "type": "Lake",
     "remarks": "Nepal\u0027s largest lake; remote and serene"
+  },
+  {
+    "id": 7,
+    "name": "Pokhara",
+    "location": "Pokhara, Nepal",
+    "difficulty": "Easy",
+    "type": "Lake",
+    "remarks": "Swim Swim"
   }
 ]

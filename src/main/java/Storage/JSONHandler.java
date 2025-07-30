@@ -106,5 +106,21 @@ public class JSONHandler {
     public List<Guide> getGuides() {
         return loadGuides();
     }
+    public static boolean addUser(User user) {
+        try {
+            List<User> users = loadUsers();
+
+            // Check if user already exists
+            if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
+                return false; // User already exists
+            }
+
+            users.add(user);
+            return saveUsers(users);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

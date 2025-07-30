@@ -1,15 +1,24 @@
 package Admin;
 
+import First.RegisterController;
+import Models.Attraction;
+import Storage.AdminJSONHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import Models.User;
 import Storage.JSONHandler;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -23,11 +32,14 @@ public class TouristContentController implements Initializable {
     @FXML private TableColumn<TouristTableData, String> contactColumn;
     @FXML private TableColumn<TouristTableData, String> emailColumn;
     @FXML private Label totalTouristsLabel;
+    @FXML private Button addTourist;
 
+    private JSONHandler jsonHandler;
     private ObservableList<TouristTableData> touristData;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        jsonHandler = new JSONHandler();
         touristData = FXCollections.observableArrayList();
 
         setupColumns();
@@ -35,6 +47,42 @@ public class TouristContentController implements Initializable {
         loadTouristData();
         setupSearch();
     }
+
+    public void addTourist(User tourist) {
+        if (JSONHandler.addUser(tourist)) {
+            loadTouristData();
+            showAlert();
+        } else {
+            showAlert();
+        }
+    }
+
+    @FXML
+    private void addTourist() {
+        openAddTouristDialog(); // Changed from openAddAttractionDialog()
+    }
+
+    // Add this method to open the tourist dialog
+    private void openAddTouristDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Admin/AddTouristDialog.fxml"));
+            Parent root = loader.load();
+
+            AddTouristDialogController controller = loader.getController();
+            controller.setParentController(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add New Tourist");
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert();
+        }
+    }
+
 
     private void setupColumns() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));

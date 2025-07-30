@@ -115,5 +115,14 @@
     "phone": "9869027032",
     "password": "1234",
     "userType": "user"
+  },
+  {
+    "id": "1753860165705",
+    "firstName": "Test",
+    "lastName": "Test",
+    "email": "test@gmail.com",
+    "phone": "9869027000",
+    "password": "1234",
+    "userType": "user"
   }
 ]

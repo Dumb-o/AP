@@ -21,8 +21,9 @@
     "description": "Samuel Jackson fell from clif.",
     "location": "Durbarmarg",
     "severity": "High",
-    "status": "Reported",
+    "status": "Resolved",
     "reportedAtStr": "2025-07-29T23:11:13.304202356",
+    "resolvedAtStr": "2025-07-30T09:07:15.378215221",
     "contactNumber": "9869027088",
     "additionalNotes": "He is of high priority, please look into it."
   },
@@ -38,5 +39,31 @@
     "reportedAtStr": "2025-07-29T23:11:57.544498756",
     "contactNumber": "9869027098",
     "additionalNotes": "He needed some bandages."
+  },
+  {
+    "id": 4,
+    "guideName": "Sarun Maharjan",
+    "guideEmail": "sarun-maharjan@guide.com",
+    "emergencyType": "Lost Tourist",
+    "description": "John got lost",
+    "location": "Everest",
+    "severity": "Critical",
+    "status": "Reported",
+    "reportedAtStr": "2025-07-30T09:06:29.902516003",
+    "contactNumber": "9869027099",
+    "additionalNotes": "Urgent Helicopter search"
+  },
+  {
+    "id": 5,
+    "guideName": "Rija Bhomi",
+    "guideEmail": "rija-bhomi@guide.com",
+    "emergencyType": "Weather Emergency",
+    "description": "Pani dherai paryo badi ayo,",
+    "location": "Pashupati",
+    "severity": "Medium",
+    "status": "Reported",
+    "reportedAtStr": "2025-07-30T09:18:05.893931175",
+    "contactNumber": "100",
+    "additionalNotes": "Nagarne ma"
   }
 ]
