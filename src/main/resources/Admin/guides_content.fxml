@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -22,7 +21,20 @@
         </Label>
         <Region HBox.hgrow="ALWAYS" />
         <TextField fx:id="searchField" prefWidth="250.0" promptText="Search guides..." style="-fx-background-radius: 5;" />
-        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
+        <Button fx:id="addGuide" mnemonicParsing="false" onAction="#addGuide" style="-fx-background-color: #3C7EBD;" text="Add" textFill="WHITE" />
+        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteSelectedGuide"
+                style="-fx-background-color: #DC3545; -fx-text-fill: white; -fx-background-radius: 5;"
+                text="Delete" opacity="0.3" disable="true">
+            <HBox.margin>
+                <Insets left="10.0" />
+            </HBox.margin>
+        </Button>
+        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh">
+            <HBox.margin>
+                <Insets right="10.0" />
+            </HBox.margin>
+        </Button>
     </HBox>
 
     <!-- Guides Table -->
@@ -64,6 +76,12 @@
         <Label fx:id="totalGuidesLabel" text="Total Guides: 0" textFill="#666666">
             <font>
                 <Font size="14.0" />
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="selectedGuideLabel" text="No guide selected" textFill="#999999">
+            <font>
+                <Font size="12.0" />
             </font>
         </Label>
     </HBox>

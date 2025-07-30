@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -7,7 +6,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -22,55 +20,35 @@
             </font>
         </Label>
         <Region HBox.hgrow="ALWAYS" />
-        <ComboBox fx:id="difficultyFilter" prefWidth="150.0" promptText="Filter by Difficulty" style="-fx-background-radius: 5;" />
-        <TextField fx:id="searchField" prefWidth="250.0" promptText="Search treks..." style="-fx-background-radius: 5;" />
-        <Button fx:id="addTrekButton" mnemonicParsing="false" onAction="#addNewTrek" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;" text="Add Trek" />
-        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
+        <TextField fx:id="searchField" prefWidth="200.0" promptText="Search treks..." style="-fx-background-radius: 5;" />
+        <ComboBox fx:id="difficultyFilter" prefWidth="150.0" />
+        <Button fx:id="addButton" mnemonicParsing="false" onAction="#addNewTrek" style="-fx-background-color: #3C7EBD;" text="Add" textFill="WHITE" />
+        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteSelectedTrek"
+                style="-fx-background-color: #DC3545; -fx-text-fill: white; -fx-background-radius: 5;"
+                text="Delete" opacity="0.3" disable="true">
+            <HBox.margin>
+                <Insets left="10.0" />
+            </HBox.margin>
+        </Button>
+        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh">
+            <HBox.margin>
+                <Insets right="10.0" />
+            </HBox.margin>
+        </Button>
     </HBox>
 
     <!-- Treks Table -->
     <TableView fx:id="treksTable" style="-fx-background-color: white; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="trekNameColumn" prefWidth="200.0" text="Trek Name">
-                <cellValueFactory>
-                    <PropertyValueFactory property="name" />
-                </cellValueFactory>
-            </TableColumn>
-         <TableColumn fx:id="dateColumn" prefWidth="89.0" text="Date">
-            <cellValueFactory>
-               <PropertyValueFactory property="date" />
-            </cellValueFactory>
-         </TableColumn>
-            <TableColumn fx:id="durationColumn" prefWidth="93.0" text="Duration">
-                <cellValueFactory>
-                    <PropertyValueFactory property="duration" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="difficultyColumn" prefWidth="120.0" text="Difficulty">
-                <cellValueFactory>
-                    <PropertyValueFactory property="difficulty" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="maxAltitudeColumn" prefWidth="120.0" text="Max Altitude">
-                <cellValueFactory>
-                    <PropertyValueFactory property="maxAltitude" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="costColumn" prefWidth="100.0" text="Cost">
-                <cellValueFactory>
-                    <PropertyValueFactory property="costDisplay" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="bestSeasonColumn" prefWidth="150.0" text="Best Season">
-                <cellValueFactory>
-                    <PropertyValueFactory property="bestSeason" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="guideColumn" prefWidth="100.0" text="Guide">
-                <cellValueFactory>
-                    <PropertyValueFactory property="status" />
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn fx:id="trekNameColumn" prefWidth="150.0" text="Trek Name" />
+            <TableColumn fx:id="dateColumn" prefWidth="100.0" text="Date" />
+            <TableColumn fx:id="durationColumn" prefWidth="80.0" text="Duration" />
+            <TableColumn fx:id="difficultyColumn" prefWidth="80.0" text="Difficulty" />
+            <TableColumn fx:id="maxAltitudeColumn" prefWidth="100.0" text="Max Altitude" />
+            <TableColumn fx:id="costColumn" prefWidth="80.0" text="Cost" />
+            <TableColumn fx:id="bestSeasonColumn" prefWidth="100.0" text="Best Season" />
+            <TableColumn fx:id="guideColumn" prefWidth="150.0" text="Guide" />
         </columns>
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -97,6 +75,12 @@
         <Label fx:id="hardCountLabel" text="Hard: 0" textFill="#F44336">
             <font>
                 <Font size="14.0" />
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="selectedTrekLabel" text="No trek selected" textFill="#999999">
+            <font>
+                <Font size="12.0" />
             </font>
         </Label>
     </HBox>

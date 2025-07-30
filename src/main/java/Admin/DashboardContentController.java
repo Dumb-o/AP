@@ -1,5 +1,6 @@
 package Admin;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -10,6 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.control.Separator;
 import Session.UserSession;
 import Storage.JSONHandler;
 import Storage.AdminJSONHandler;
@@ -17,6 +19,9 @@ import Models.Emergency;
 import Models.Booking;
 import Models.Trek;
 import Models.Attraction;
+import Services.WeatherService;
+import javafx.scene.chart.PieChart;
+import Models.User;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -35,6 +40,17 @@ public class DashboardContentController implements Initializable {
     @FXML private Label totalEmergenciesLabel;
     @FXML private VBox activityList;
     @FXML private BarChart<String, Number> bookingTrendsChart;
+    @FXML private PieChart touristsPieChart;
+    @FXML private VBox nationalityLegend;
+    @FXML private Label nationalityStatsLabel;
+
+    // Weather-related FXML elements
+    @FXML private Label weatherLocationLabel;
+    @FXML private Label weatherDescriptionLabel;
+    @FXML private Label weatherTempLabel;
+    @FXML private Label weatherIconLabel;
+    @FXML private Label weatherHumidityLabel;
+    @FXML private Label weatherWindLabel;
 
     private JSONHandler fileManager;
     private AdminJSONHandler adminJsonHandler;
@@ -48,6 +64,8 @@ public class DashboardContentController implements Initializable {
         loadDashboardData();
         setupSimplifiedBookingTrendsChart();
         loadSimplifiedRecentActivities();
+        loadWeatherData();
+        setupNationalityPieChart();
     }
 
     private void updateCurrentDate() {
@@ -66,6 +84,49 @@ public class DashboardContentController implements Initializable {
         totalTouristsLabel.setText(String.valueOf(getTotalTourists()));
         activeGuidesLabel.setText(String.valueOf(getTotalGuides()));
         totalEmergenciesLabel.setText(String.valueOf(getTotalEmergencies()));
+    }
+
+    private void loadWeatherData() {
+        // Set initial loading state
+        weatherDescriptionLabel.setText("Loading weather...");
+        weatherTempLabel.setText("--°C");
+        weatherIconLabel.setText("🔄");
+        weatherHumidityLabel.setText("--%");
+        weatherWindLabel.setText("-- km/h");
+
+        // Fetch weather data for Kathmandu (main city in Nepal)
+        WeatherService.getCurrentWeather("Kathmandu")
+                .thenAccept(weatherData -> {
+                    // Update UI on JavaFX Application Thread
+                    Platform.runLater(() -> {
+                        updateWeatherUI(weatherData);
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Platform.runLater(() -> {
+                        weatherDescriptionLabel.setText("Weather unavailable");
+                        weatherIconLabel.setText("❌");
+                    });
+                    System.err.println("Failed to load weather: " + throwable.getMessage());
+                    return null;
+                });
+    }
+
+    private void updateWeatherUI(WeatherService.WeatherData weatherData) {
+        try {
+            weatherLocationLabel.setText(weatherData.getLocation());
+            weatherDescriptionLabel.setText(weatherData.getDescription());
+            weatherTempLabel.setText(String.format("%.1f°C", weatherData.getTemperature()));
+            weatherIconLabel.setText(weatherData.getWeatherIcon());
+            weatherHumidityLabel.setText(weatherData.getHumidity() + "%");
+            weatherWindLabel.setText(String.format("%.1f km/h", weatherData.getWindSpeed()));
+
+            System.out.println("Weather data updated successfully for " + weatherData.getLocation());
+        } catch (Exception e) {
+            System.err.println("Error updating weather UI: " + e.getMessage());
+            weatherDescriptionLabel.setText("Display error");
+            weatherIconLabel.setText("❌");
+        }
     }
 
     private int getTotalTourists() {
@@ -276,6 +337,177 @@ public class DashboardContentController implements Initializable {
             case "weather emergency", "weather" -> "#2196F3";
             default -> "#9C27B0";
         };
+    }
+
+    private void setupNationalityPieChart() {
+        try {
+            // Load all users (tourists)
+            List<User> allUsers = fileManager.loadUsers();
+
+            // Filter only tourists (exclude admins)
+            List<User> tourists = allUsers.stream()
+                    .filter(user -> "user".equalsIgnoreCase(user.getUserType()))
+                    .collect(Collectors.toList());
+
+            // Count nationalities
+            Map<String, Long> nationalityCounts = tourists.stream()
+                    .filter(user -> user.getNationality() != null && !user.getNationality().trim().isEmpty())
+                    .collect(Collectors.groupingBy(
+                            user -> user.getNationality().trim(),
+                            Collectors.counting()
+                    ));
+
+            // Clear existing data
+            touristsPieChart.getData().clear();
+            nationalityLegend.getChildren().clear();
+
+            // Add legend header back
+            Label legendTitle = new Label("Legend");
+            legendTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #333333;");
+            nationalityLegend.getChildren().add(legendTitle);
+
+            Separator separator = new Separator();
+            separator.setStyle("-fx-background-color: #dee2e6;");
+            nationalityLegend.getChildren().add(separator);
+
+            // Define colors for consistency
+            String[] colors = {
+                    "#667eea", "#764ba2", "#f093fb", "#f5576c",
+                    "#4facfe", "#00f2fe", "#43e97b", "#38f9d7",
+                    "#ffecd2", "#fcb69f", "#a8edea", "#fed6e3",
+                    "#ff9a9e", "#fecfef", "#ffeaa7", "#fab1a0"
+            };
+
+            if (nationalityCounts.isEmpty()) {
+                // Show placeholder if no data
+                PieChart.Data noDataSlice = new PieChart.Data("No Data Available", 1);
+                touristsPieChart.getData().add(noDataSlice);
+
+                // Add no data legend item
+                HBox legendItem = createLegendItem("#cccccc", "No Data Available", 0, 0.0);
+                nationalityLegend.getChildren().add(legendItem);
+
+                // Style the no-data slice
+                Platform.runLater(() -> {
+                    noDataSlice.getNode().setStyle("-fx-pie-color: #cccccc;");
+                });
+
+                nationalityStatsLabel.setText("No nationality data available");
+            } else {
+                // Sort nationalities by count (descending)
+                List<Map.Entry<String, Long>> sortedEntries = nationalityCounts.entrySet().stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .collect(Collectors.toList());
+
+                // Add nationality data to pie chart and create legend
+                for (int i = 0; i < sortedEntries.size(); i++) {
+                    Map.Entry<String, Long> entry = sortedEntries.get(i);
+                    String nationality = entry.getKey();
+                    Long count = entry.getValue();
+                    String color = colors[i % colors.length];
+
+                    // Calculate percentage
+                    double percentage = (count * 100.0) / tourists.size();
+
+                    // Create pie chart slice (without percentage in label for cleaner look)
+                    PieChart.Data slice = new PieChart.Data(nationality, count);
+                    touristsPieChart.getData().add(slice);
+
+                    // Create legend item
+                    HBox legendItem = createLegendItem(color, nationality, count, percentage);
+                    nationalityLegend.getChildren().add(legendItem);
+
+                    // Apply color to slice
+                    final String finalColor = color;
+                    Platform.runLater(() -> {
+                        slice.getNode().setStyle("-fx-pie-color: " + finalColor + ";");
+                    });
+                }
+
+                // Update stats label
+                nationalityStatsLabel.setText(String.format("Showing %d nationalities from %d tourists",
+                        nationalityCounts.size(), tourists.size()));
+            }
+
+            // Style the pie chart for better responsiveness
+            touristsPieChart.setLegendVisible(false); // We have our custom legend
+            touristsPieChart.setLabelsVisible(true);
+            touristsPieChart.setStartAngle(90);
+            touristsPieChart.setClockwise(true);
+
+            // Make pie chart responsive
+            touristsPieChart.setMinSize(300, 300);
+            touristsPieChart.setPrefSize(400, 400);
+            touristsPieChart.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+            // Apply custom styling
+            touristsPieChart.setStyle(
+                    "-fx-background-color: transparent; " +
+                            "-fx-border-color: transparent;"
+            );
+
+            int totalTourists = tourists.size();
+            int totalNationalities = nationalityCounts.size();
+
+            System.out.println("Enhanced nationality pie chart updated:");
+            System.out.println("Total tourists: " + totalTourists);
+            System.out.println("Different nationalities: " + totalNationalities);
+            nationalityCounts.forEach((nationality, count) ->
+                    System.out.println("  " + nationality + ": " + count + " tourists"));
+
+        } catch (Exception e) {
+            System.err.println("Error setting up nationality pie chart: " + e.getMessage());
+            e.printStackTrace();
+
+            // Show error in pie chart
+            touristsPieChart.getData().clear();
+            nationalityLegend.getChildren().clear();
+
+            PieChart.Data errorSlice = new PieChart.Data("Error Loading Data", 1);
+            touristsPieChart.getData().add(errorSlice);
+
+            // Add error legend
+            Label legendTitle = new Label("Legend");
+            legendTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #333333;");
+            nationalityLegend.getChildren().add(legendTitle);
+
+            HBox errorLegend = createLegendItem("#ff6b6b", "Error Loading Data", 1, 100.0);
+            nationalityLegend.getChildren().add(errorLegend);
+
+            Platform.runLater(() -> {
+                errorSlice.getNode().setStyle("-fx-pie-color: #ff6b6b;");
+            });
+
+            nationalityStatsLabel.setText("Error loading nationality data");
+        }
+    }
+
+    private HBox createLegendItem(String color, String nationality, long count, double percentage) {
+        HBox legendItem = new HBox(10);
+        legendItem.setAlignment(Pos.CENTER_LEFT);
+        legendItem.setStyle("-fx-padding: 5 0;");
+
+        // Color indicator (small rectangle)
+        Region colorBox = new Region();
+        colorBox.setStyle("-fx-background-color: " + color + "; -fx-background-radius: 3;");
+        colorBox.setPrefSize(16, 16);
+        colorBox.setMinSize(16, 16);
+        colorBox.setMaxSize(16, 16);
+
+        // Nationality label with count and percentage
+        Label nationalityLabel = new Label(nationality);
+        nationalityLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333333;");
+
+        // Stats label
+        Label statsLabel = new Label(String.format("(%d - %.1f%%)", count, percentage));
+        statsLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
+        // Spacer to push stats to the right
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        legendItem.getChildren().addAll(colorBox, nationalityLabel, spacer, statsLabel);
+        return legendItem;
     }
 
     private String formatTimeAgo(LocalDateTime dateTime) {

@@ -26,6 +26,9 @@ public class RegisterController {
     private PasswordField passwordField;
 
     @FXML
+    private TextField nationalityField;
+
+    @FXML
     private PasswordField confirmPasswordField;
 
     @FXML
@@ -49,9 +52,11 @@ public class RegisterController {
         String phone = phoneField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
+        String nationality = nationalityField.getText().toLowerCase().trim();
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-                phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
+                || nationality.isEmpty()) {
             showError("Please fill in all fields");
             return;
         }
@@ -73,7 +78,7 @@ public class RegisterController {
         }
 
         // Create new user
-        User newUser = new User(firstName, lastName, email, phone, password);
+        User newUser = new User(firstName, lastName, email, phone, password, nationality);
         List<User> users = JSONHandler.loadUsers();
         users.add(newUser);
 

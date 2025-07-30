@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class TreksContentController implements Initializable {
 
     @FXML private TableView<Trek> treksTable;
     @FXML private TableColumn<Trek, String> trekNameColumn;
-    @FXML private TableColumn<Trek, LocalDate> dateColumn;  // Added date column
+    @FXML private TableColumn<Trek, LocalDate> dateColumn;
     @FXML private TableColumn<Trek, String> durationColumn;
     @FXML private TableColumn<Trek, String> difficultyColumn;
     @FXML private TableColumn<Trek, String> maxAltitudeColumn;
@@ -38,10 +39,13 @@ public class TreksContentController implements Initializable {
     @FXML private Label easyCountLabel;
     @FXML private Label moderateCountLabel;
     @FXML private Label hardCountLabel;
+    @FXML private Label selectedTrekLabel;
+    @FXML private Button deleteButton;
 
     private AdminJSONHandler jsonHandler;
     private ObservableList<Trek> treksList;
     private ObservableList<Trek> filteredList;
+    private Trek selectedTrek;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -51,12 +55,13 @@ public class TreksContentController implements Initializable {
 
         setupTableColumns();
         setupFilters();
+        setupTableSelection();
         loadTreks();
     }
 
     private void setupTableColumns() {
         trekNameColumn.setCellValueFactory(new PropertyValueFactory<>("trekName"));
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));  // Added date column setup
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         durationColumn.setCellValueFactory(new PropertyValueFactory<>("duration"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
         maxAltitudeColumn.setCellValueFactory(new PropertyValueFactory<>("maxAltitude"));
@@ -77,6 +82,86 @@ public class TreksContentController implements Initializable {
         });
 
         treksTable.setItems(filteredList);
+
+        // Add row click handler
+        treksTable.setRowFactory(tv -> {
+            TableRow<Trek> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty()) {
+                    Trek clickedTrek = row.getItem();
+                    selectTrek(clickedTrek);
+                }
+            });
+            return row;
+        });
+    }
+
+    private void setupTableSelection() {
+        treksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                selectTrek(newSelection);
+            } else {
+                clearSelection();
+            }
+        });
+    }
+
+    private void selectTrek(Trek trek) {
+        selectedTrek = trek;
+        selectedTrekLabel.setText("Selected: " + trek.getTrekName());
+
+        // Make delete button opaque and enabled
+        deleteButton.setOpacity(1.0);
+        deleteButton.setDisable(false);
+    }
+
+    private void clearSelection() {
+        selectedTrek = null;
+        selectedTrekLabel.setText("No trek selected");
+
+        // Make delete button transparent and disabled
+        deleteButton.setOpacity(0.3);
+        deleteButton.setDisable(true);
+    }
+
+    @FXML
+    private void deleteSelectedTrek() {
+        if (selectedTrek == null) {
+            showAlert("Warning", "Please select a trek to delete.");
+            return;
+        }
+
+        // Show confirmation dialog
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Deletion");
+        confirmAlert.setHeaderText("Delete Trek");
+        confirmAlert.setContentText("Are you sure you want to delete the trek: " +
+                selectedTrek.getTrekName() + "?\n\nThis action cannot be undone.");
+
+        // Add custom buttons
+        ButtonType deleteButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmAlert.getButtonTypes().setAll(deleteButtonType, cancelButtonType);
+
+        // Style the delete button to be red
+        confirmAlert.getDialogPane().lookupButton(deleteButtonType).setStyle(
+                "-fx-background-color: #DC3545; -fx-text-fill: white;"
+        );
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteButtonType) {
+            // Proceed with deletion
+            boolean success = jsonHandler.deleteTrek(selectedTrek.getId());
+
+            if (success) {
+                showAlert("Success", "Trek '" + selectedTrek.getTrekName() + "' has been deleted successfully.");
+                loadTreks(); // Refresh the table
+                clearSelection(); // Clear the selection
+            } else {
+                showAlert("Error", "Failed to delete the trek. Please try again.");
+            }
+        }
     }
 
     private void setupFilters() {
@@ -88,10 +173,12 @@ public class TreksContentController implements Initializable {
         // Add listeners
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterTreks();
+            clearSelection(); // Clear selection when searching
         });
 
         difficultyFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
             filterTreks();
+            clearSelection(); // Clear selection when filtering
         });
     }
 
@@ -132,6 +219,7 @@ public class TreksContentController implements Initializable {
         treksList.setAll(treks);
         filteredList.setAll(treks);
         updateLabels();
+        clearSelection(); // Clear selection when data is reloaded
     }
 
     private void updateLabels() {

@@ -32,6 +32,9 @@ public class GuideRegisterController {
     private PasswordField confirmPasswordField;
 
     @FXML
+    private TextField nationalityField;
+
+    @FXML
     private TextArea experienceArea;
 
     @FXML
@@ -49,13 +52,14 @@ public class GuideRegisterController {
         String email = emailField.getText().trim();
         String phone = phoneField.getText().trim();
         String language = languageField.getText().trim();
+        String nationality = nationalityField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
         String experience = experienceArea.getText().trim();
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
                 phone.isEmpty() || language.isEmpty() || password.isEmpty() ||
-                confirmPassword.isEmpty() || experience.isEmpty()) {
+                nationality.isEmpty() || confirmPassword.isEmpty() || experience.isEmpty()) {
             showError("Please fill in all fields");
             return;
         }
@@ -77,7 +81,7 @@ public class GuideRegisterController {
         }
 
         // Create new guide
-        Guide newGuide = new Guide(firstName, lastName, email, phone, password, language, experience);
+        Guide newGuide = new Guide(firstName, lastName, email, phone, password, nationality, language, experience);
         List<Guide> guides = JSONHandler.loadGuides();
         guides.add(newGuide);
 

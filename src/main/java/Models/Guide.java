@@ -10,8 +10,8 @@ public class Guide extends User {
     }
 
     public Guide(String firstName, String lastName, String email, String phone,
-                 String password, String proficiencyLanguage, String experience) {
-        super(firstName, lastName, email, phone, password);
+                 String password, String nationality, String proficiencyLanguage, String experience) {
+        super(firstName, lastName, email, phone, password, nationality);
         setUserType("guide");
         this.proficiencyLanguage = proficiencyLanguage;
         this.experience = experience;

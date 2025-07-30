@@ -11,13 +11,14 @@ public class User {
     private String phone;
     private String password;
     private String userType;
+    private String nationality;
 
     public User() {
         this.userType = "user";
         String createdAt = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
-    public User(String firstName, String lastName, String email, String phone, String password) {
+    public User(String firstName, String lastName, String email, String phone, String password, String nationality) {
         this();
         this.id = String.valueOf(System.currentTimeMillis());
         this.firstName = firstName;
@@ -25,6 +26,7 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.password = password;
+        this.nationality = nationality;
     }
 
     // Getters and Setters
@@ -50,6 +52,10 @@ public class User {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
+
     @Override
     public String toString() {
         return firstName + " " + lastName + " (" + email + ")";

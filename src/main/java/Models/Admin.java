@@ -7,8 +7,8 @@ public class Admin extends User {
         setUserType("admin");
     }
 
-    public Admin(String firstName, String lastName, String email, String phone, String password) {
-        super(firstName, lastName, email, phone, password);
+    public Admin(String firstName, String lastName, String email, String phone, String password, String nationality) {
+        super(firstName, lastName, email, phone, password, nationality);
         setUserType("admin");
     }
 }

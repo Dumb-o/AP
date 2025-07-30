@@ -1,16 +1,23 @@
 package Admin;
 
+import Models.Attraction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import Models.Guide;
 import Storage.JSONHandler;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -19,9 +26,12 @@ public class GuidesContentController implements Initializable {
     @FXML private TextField searchField;
     @FXML private TableView<GuideTableData> guidesTable;
     @FXML private Label totalGuidesLabel;
+    @FXML private Label selectedGuideLabel;
+    @FXML private Button deleteButton;
 
     private JSONHandler fileManager;
     private ObservableList<GuideTableData> guideData;
+    private GuideTableData selectedGuide;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -31,6 +41,7 @@ public class GuidesContentController implements Initializable {
         setupTable();
         loadGuideData();
         setupSearch();
+        setupTableSelection();
     }
 
     private void setupTable() {
@@ -39,13 +50,86 @@ public class GuidesContentController implements Initializable {
         guidesTable.setRowFactory(tv -> {
             TableRow<GuideTableData> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    GuideTableData selectedGuide = row.getItem();
-                    showGuideDetails(selectedGuide);
+                if (!row.isEmpty()) {
+                    GuideTableData clickedGuide = row.getItem();
+                    selectGuide(clickedGuide);
+
+                    // Double click to show details
+                    if (event.getClickCount() == 2) {
+                        showGuideDetails(clickedGuide);
+                    }
                 }
             });
             return row;
         });
+    }
+
+    private void setupTableSelection() {
+        guidesTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                selectGuide(newSelection);
+            } else {
+                clearSelection();
+            }
+        });
+    }
+
+    private void selectGuide(GuideTableData guide) {
+        selectedGuide = guide;
+        selectedGuideLabel.setText("Selected: " + guide.getFullName());
+
+        // Make delete button opaque and enabled
+        deleteButton.setOpacity(1.0);
+        deleteButton.setDisable(false);
+    }
+
+    private void clearSelection() {
+        selectedGuide = null;
+        selectedGuideLabel.setText("No guide selected");
+
+        // Make delete button transparent and disabled
+        deleteButton.setOpacity(0.3);
+        deleteButton.setDisable(true);
+    }
+
+    @FXML
+    private void deleteSelectedGuide() {
+        if (selectedGuide == null) {
+            showAlert("Warning", "Please select a guide to delete.");
+            return;
+        }
+
+        // Show confirmation dialog
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Deletion");
+        confirmAlert.setHeaderText("Delete Guide");
+        confirmAlert.setContentText("Are you sure you want to delete the guide: " +
+                selectedGuide.getFullName() + "?\n\nThis action cannot be undone.");
+
+        // Add custom buttons
+        ButtonType deleteButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmAlert.getButtonTypes().setAll(deleteButtonType, cancelButtonType);
+
+        // Style the delete button to be red
+        confirmAlert.getDialogPane().lookupButton(deleteButtonType).setStyle(
+                "-fx-background-color: #DC3545; -fx-text-fill: white;"
+        );
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteButtonType) {
+            // Proceed with deletion
+            boolean success = JSONHandler.deleteGuide(selectedGuide.getEmail());
+
+            if (success) {
+                showAlert("Success", "Guide '" + selectedGuide.getFullName() + "' has been deleted successfully.");
+                loadGuideData(); // Refresh the table
+                clearSelection(); // Clear the selection
+            } else {
+                showAlert("Error", "Failed to delete the guide. Please try again.");
+            }
+        }
     }
 
     private void loadGuideData() {
@@ -63,6 +147,7 @@ public class GuidesContentController implements Initializable {
         }
 
         updateStatistics();
+        clearSelection(); // Clear selection when data is reloaded
     }
 
     private String extractExperienceYears(String experience) {
@@ -94,26 +179,58 @@ public class GuidesContentController implements Initializable {
                         .collect(Collectors.toCollection(FXCollections::observableArrayList));
                 guidesTable.setItems(filteredData);
             }
+            clearSelection(); // Clear selection when searching
         });
+    }
+
+    @FXML
+    private void addGuide() {
+        openAddGuideDialog();
+    }
+
+    private void openAddGuideDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("AddGuideDialog.fxml"));
+            Parent root = loader.load();
+
+            AddGuideDialogController controller = loader.getController();
+            controller.setParentController(this);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Add New Guide");
+            dialogStage.setScene(new Scene(root));
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open add guide dialog.");
+        }
+    }
+
+    public void addGuide(Guide guide) {
+        if (JSONHandler.addGuide(guide)) {
+            loadGuideData();
+            showAlert("Success", "Guide added successfully!");
+        } else {
+            showAlert("Error", "Failed to add guide. Email might already exist.");
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
     private void refreshData(ActionEvent event) {
         loadGuideData();
-        showAlert();
-    }
-
-    private void showAlert() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText("Data refreshed successfully!");
-        alert.showAndWait();
+        showAlert("Success", "Data refreshed successfully!");
     }
 
     private void updateStatistics() {
         int total = guideData.size();
-
         totalGuidesLabel.setText("Total Guides: " + total);
     }
 

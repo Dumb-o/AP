@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -32,10 +33,13 @@ public class TouristContentController implements Initializable {
     @FXML private TableColumn<TouristTableData, String> contactColumn;
     @FXML private TableColumn<TouristTableData, String> emailColumn;
     @FXML private Label totalTouristsLabel;
+    @FXML private Label selectedTouristLabel;
     @FXML private Button addTourist;
+    @FXML private Button deleteButton;
 
     private JSONHandler jsonHandler;
     private ObservableList<TouristTableData> touristData;
+    private TouristTableData selectedTourist;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,23 +50,91 @@ public class TouristContentController implements Initializable {
         setupTable();
         loadTouristData();
         setupSearch();
+        setupTableSelection();
+    }
+
+    private void setupTableSelection() {
+        touristsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                selectTourist(newSelection);
+            } else {
+                clearSelection();
+            }
+        });
+    }
+
+    private void selectTourist(TouristTableData tourist) {
+        selectedTourist = tourist;
+        selectedTouristLabel.setText("Selected: " + tourist.getFullName());
+
+        // Make delete button opaque and enabled
+        deleteButton.setOpacity(1.0);
+        deleteButton.setDisable(false);
+    }
+
+    private void clearSelection() {
+        selectedTourist = null;
+        selectedTouristLabel.setText("No tourist selected");
+
+        // Make delete button transparent and disabled
+        deleteButton.setOpacity(0.3);
+        deleteButton.setDisable(true);
+    }
+
+    @FXML
+    private void deleteSelectedTourist() {
+        if (selectedTourist == null) {
+            showAlert("Warning", "Please select a tourist to delete.");
+            return;
+        }
+
+        // Show confirmation dialog
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Deletion");
+        confirmAlert.setHeaderText("Delete Tourist");
+        confirmAlert.setContentText("Are you sure you want to delete the tourist: " +
+                selectedTourist.getFullName() + "?\n\nThis action cannot be undone.");
+
+        // Add custom buttons
+        ButtonType deleteButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmAlert.getButtonTypes().setAll(deleteButtonType, cancelButtonType);
+
+        // Style the delete button to be red
+        confirmAlert.getDialogPane().lookupButton(deleteButtonType).setStyle(
+                "-fx-background-color: #DC3545; -fx-text-fill: white;"
+        );
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteButtonType) {
+            // Proceed with deletion
+            boolean success = JSONHandler.deleteUser(selectedTourist.getEmail());
+
+            if (success) {
+                showAlert("Success", "Tourist '" + selectedTourist.getFullName() + "' has been deleted successfully.");
+                loadTouristData(); // Refresh the table
+                clearSelection(); // Clear the selection
+            } else {
+                showAlert("Error", "Failed to delete the tourist. Please try again.");
+            }
+        }
     }
 
     public void addTourist(User tourist) {
         if (JSONHandler.addUser(tourist)) {
             loadTouristData();
-            showAlert();
+            showAlert("Success", "Tourist added successfully!");
         } else {
-            showAlert();
+            showAlert("Error", "Failed to add tourist. Email might already exist.");
         }
     }
 
     @FXML
     private void addTourist() {
-        openAddTouristDialog(); // Changed from openAddAttractionDialog()
+        openAddTouristDialog();
     }
 
-    // Add this method to open the tourist dialog
     private void openAddTouristDialog() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Admin/AddTouristDialog.fxml"));
@@ -79,10 +151,9 @@ public class TouristContentController implements Initializable {
             stage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert();
+            showAlert("Error", "Failed to open add tourist dialog.");
         }
     }
-
 
     private void setupColumns() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
@@ -96,9 +167,14 @@ public class TouristContentController implements Initializable {
         touristsTable.setRowFactory(tv -> {
             TableRow<TouristTableData> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    TouristTableData selectedTourist = row.getItem();
-                    showTouristDetails(selectedTourist);
+                if (!row.isEmpty()) {
+                    TouristTableData clickedTourist = row.getItem();
+                    selectTourist(clickedTourist);
+
+                    // Double click to show details
+                    if (event.getClickCount() == 2) {
+                        showTouristDetails(clickedTourist);
+                    }
                 }
             });
             return row;
@@ -121,6 +197,7 @@ public class TouristContentController implements Initializable {
         }
 
         updateStatistics();
+        clearSelection(); // Clear selection when data is reloaded
     }
 
     private void setupSearch() {
@@ -138,13 +215,14 @@ public class TouristContentController implements Initializable {
                 );
                 touristsTable.setItems(filteredData);
             }
+            clearSelection(); // Clear selection when searching
         });
     }
 
     @FXML
     private void refreshData(ActionEvent event) {
         loadTouristData();
-        showAlert();
+        showAlert("Success", "Data refreshed successfully!");
     }
 
     private void updateStatistics() {
@@ -152,11 +230,11 @@ public class TouristContentController implements Initializable {
         totalTouristsLabel.setText("Total Tourists: " + total);
     }
 
-    private void showAlert() {
+    private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
+        alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText("Data refreshed successfully!");
+        alert.setContentText(message);
         alert.showAndWait();
     }
 

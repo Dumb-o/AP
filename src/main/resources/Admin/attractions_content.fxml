@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -22,38 +20,30 @@
         </Label>
         <Region HBox.hgrow="ALWAYS" />
         <TextField fx:id="searchField" prefWidth="250.0" promptText="Search attractions..." style="-fx-background-radius: 5;" />
-        <Button fx:id="addAttractionButton" mnemonicParsing="false" onAction="#addNewAttraction" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;" text="Add Attraction" />
-        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh" />
+        <Button fx:id="addButton" mnemonicParsing="false" onAction="#addNewAttraction" style="-fx-background-color: #3C7EBD;" text="Add" textFill="WHITE" />
+        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteSelectedAttraction"
+                style="-fx-background-color: #DC3545; -fx-text-fill: white; -fx-background-radius: 5;"
+                text="Delete" opacity="0.3" disable="true">
+            <HBox.margin>
+                <Insets left="10.0" />
+            </HBox.margin>
+        </Button>
+        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshData"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;" text="Refresh">
+            <HBox.margin>
+                <Insets right="10.0" />
+            </HBox.margin>
+        </Button>
     </HBox>
 
     <!-- Attractions Table -->
     <TableView fx:id="attractionsTable" style="-fx-background-color: white; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="placeColumn" prefWidth="200.0" text="Name">
-                <cellValueFactory>
-                    <PropertyValueFactory property="name" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="locationColumn" prefWidth="200.0" text="Location">
-                <cellValueFactory>
-                    <PropertyValueFactory property="location" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="difficultyColumn" prefWidth="150.0" text="Difficulty">
-                <cellValueFactory>
-                    <PropertyValueFactory property="difficulty" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="typeColumn" prefWidth="100.0" text="Type">
-                <cellValueFactory>
-                    <PropertyValueFactory property="type" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="remarksColumn" prefWidth="200.0" text="Remarks">
-                <cellValueFactory>
-                    <PropertyValueFactory property="warning" />
-                </cellValueFactory>
-            </TableColumn>
+            <TableColumn fx:id="placeColumn" prefWidth="150.0" text="Place" />
+            <TableColumn fx:id="locationColumn" prefWidth="150.0" text="Location" />
+            <TableColumn fx:id="difficultyColumn" prefWidth="100.0" text="Difficulty" />
+            <TableColumn fx:id="typeColumn" prefWidth="100.0" text="Type" />
+            <TableColumn fx:id="remarksColumn" prefWidth="200.0" text="Remarks" />
         </columns>
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -65,6 +55,12 @@
         <Label fx:id="totalAttractionsLabel" text="Total Attractions: 0" textFill="#666666">
             <font>
                 <Font size="14.0" />
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Label fx:id="selectedAttractionLabel" text="No attraction selected" textFill="#999999">
+            <font>
+                <Font size="12.0" />
             </font>
         </Label>
     </HBox>

@@ -10,6 +10,8 @@ import Models.Trek;
 import Models.Attraction;
 import Session.UserSession;
 import Storage.AdminJSONHandler;
+import Services.WeatherService;
+import javafx.application.Platform;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -33,12 +35,21 @@ public class GuideDashboardContentController implements Initializable {
     @FXML private Label difficultyLabel;
     @FXML private VBox upcomingTrekContainer;
 
+    // Weather-related FXML elements
+    @FXML private Label weatherLocationLabel;
+    @FXML private Label weatherDescriptionLabel;
+    @FXML private Label weatherTempLabel;
+    @FXML private Label weatherIconLabel;
+    @FXML private Label weatherHumidityLabel;
+    @FXML private Label weatherWindLabel;
+
     private AdminJSONHandler adminHandler;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         adminHandler = new AdminJSONHandler();
         loadDashboardData();
+        loadWeatherData();
         setupCalendar();
     }
 
@@ -242,5 +253,54 @@ public class GuideDashboardContentController implements Initializable {
                 .filter(Objects::nonNull)
                 .filter(date -> !date.isBefore(startOfMonth) && !date.isAfter(endOfMonth))
                 .collect(Collectors.toList());
+    }
+
+    private void loadWeatherData() {
+        // Set initial loading state
+        if (weatherDescriptionLabel != null) {
+            weatherDescriptionLabel.setText("Loading weather...");
+            weatherTempLabel.setText("--°C");
+            weatherIconLabel.setText("🔄");
+            weatherHumidityLabel.setText("--%");
+            weatherWindLabel.setText("-- km/h");
+
+            // Fetch weather data for Kathmandu (main city in Nepal)
+            WeatherService.getCurrentWeather("Kathmandu")
+                    .thenAccept(weatherData -> {
+                        // Update UI on JavaFX Application Thread
+                        Platform.runLater(() -> {
+                            updateWeatherUI(weatherData);
+                        });
+                    })
+                    .exceptionally(throwable -> {
+                        Platform.runLater(() -> {
+                            weatherDescriptionLabel.setText("Weather unavailable");
+                            weatherIconLabel.setText("❌");
+                        });
+                        System.err.println("Failed to load weather: " + throwable.getMessage());
+                        return null;
+                    });
+        }
+    }
+
+    private void updateWeatherUI(WeatherService.WeatherData weatherData) {
+        try {
+            if (weatherLocationLabel != null) {
+                weatherLocationLabel.setText(weatherData.getLocation());
+                weatherDescriptionLabel.setText(weatherData.getDescription());
+                weatherTempLabel.setText(String.format("%.1f°C", weatherData.getTemperature()));
+                weatherIconLabel.setText(weatherData.getWeatherIcon());
+                weatherHumidityLabel.setText(weatherData.getHumidity() + "%");
+                weatherWindLabel.setText(String.format("%.1f km/h", weatherData.getWindSpeed()));
+
+                System.out.println("Weather data updated successfully for " + weatherData.getLocation());
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating weather UI: " + e.getMessage());
+            if (weatherDescriptionLabel != null) {
+                weatherDescriptionLabel.setText("Display error");
+                weatherIconLabel.setText("❌");
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ import javafx.scene.control.*;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AdminBookingsController implements Initializable {
@@ -49,12 +50,19 @@ public class AdminBookingsController implements Initializable {
     private Button refreshButton;
 
     @FXML
+    private Button deleteButton;
+
+    @FXML
     private Label totalBookingsLabel;
+
+    @FXML
+    private Label selectedBookingLabel;
 
     private ObservableList<BookingDisplayData> allBookings;
     private ObservableList<BookingDisplayData> filteredBookings;
     private AdminJSONHandler jsonHandler;
     private JSONHandler userJsonHandler;
+    private BookingDisplayData selectedBooking;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,6 +71,7 @@ public class AdminBookingsController implements Initializable {
 
         setupTable();
         setupEventHandlers();
+        setupTableSelection();
         loadAllBookingsInitial(); // Initial load without notification
 
         System.out.println("AdminBookingsController initialized - loading all bookings");
@@ -87,6 +96,90 @@ public class AdminBookingsController implements Initializable {
 
         amountColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getAmount()));
+
+        // Add row click handler
+        bookingsTable.setRowFactory(tv -> {
+            TableRow<BookingDisplayData> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty()) {
+                    BookingDisplayData clickedBooking = row.getItem();
+                    selectBooking(clickedBooking);
+                }
+            });
+            return row;
+        });
+    }
+
+    private void setupTableSelection() {
+        bookingsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                selectBooking(newSelection);
+            } else {
+                clearSelection();
+            }
+        });
+    }
+
+    private void selectBooking(BookingDisplayData booking) {
+        selectedBooking = booking;
+        selectedBookingLabel.setText("Selected: " + booking.getBookingId() + " - " + booking.getTouristName());
+
+        // Make delete button opaque and enabled
+        deleteButton.setOpacity(1.0);
+        deleteButton.setDisable(false);
+    }
+
+    private void clearSelection() {
+        selectedBooking = null;
+        selectedBookingLabel.setText("No booking selected");
+
+        // Make delete button transparent and disabled
+        deleteButton.setOpacity(0.3);
+        deleteButton.setDisable(true);
+    }
+
+    @FXML
+    private void deleteSelectedBooking() {
+        if (selectedBooking == null) {
+            showAlert("Warning", "Please select a booking to delete.");
+            return;
+        }
+
+        // Show confirmation dialog
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Deletion");
+        confirmAlert.setHeaderText("Delete Booking");
+        confirmAlert.setContentText("Are you sure you want to delete the booking: " +
+                selectedBooking.getBookingId() + " for " + selectedBooking.getTouristName() +
+                "?\n\nThis action cannot be undone.");
+
+        // Add custom buttons
+        ButtonType deleteButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmAlert.getButtonTypes().setAll(deleteButtonType, cancelButtonType);
+
+        // Style the delete button to be red
+        confirmAlert.getDialogPane().lookupButton(deleteButtonType).setStyle(
+                "-fx-background-color: #DC3545; -fx-text-fill: white;"
+        );
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteButtonType) {
+            // Get the original booking ID from the display data
+            int bookingId = Integer.parseInt(selectedBooking.getBookingId());
+
+            // Proceed with deletion
+            boolean success = jsonHandler.deleteBooking(bookingId);
+
+            if (success) {
+                showAlert("Success", "Booking '" + selectedBooking.getBookingId() + "' has been deleted successfully.");
+                loadAllBookingsInitial(); // Refresh the table
+                clearSelection(); // Clear the selection
+            } else {
+                showAlert("Error", "Failed to delete the booking. Please try again.");
+            }
+        }
     }
 
     private void setupEventHandlers() {
@@ -96,6 +189,7 @@ public class AdminBookingsController implements Initializable {
         // Setup search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             applyFilters();
+            clearSelection(); // Clear selection when searching
         });
     }
 
@@ -130,6 +224,7 @@ public class AdminBookingsController implements Initializable {
 
             updateBookingsDisplay(allBookings);
             applyFilters();
+            clearSelection(); // Clear selection when data is reloaded
 
             // Only show success notification if requested (i.e., when refresh button is pressed)
             if (showNotification) {
@@ -139,7 +234,7 @@ public class AdminBookingsController implements Initializable {
         } catch (Exception e) {
             System.err.println("Error loading all bookings: " + e.getMessage());
             e.printStackTrace();
-            showAlert();
+            showAlert("Error", "Failed to load bookings. Please try again.");
         }
     }
 
@@ -170,7 +265,7 @@ public class AdminBookingsController implements Initializable {
 
             return new BookingDisplayData(
                     booking,
-                    booking.getBookingId(),
+                    String.valueOf(booking.getId()),
                     touristName,
                     attractionName,
                     guideName,
@@ -294,23 +389,19 @@ public class AdminBookingsController implements Initializable {
         totalBookingsLabel.setText("Total Bookings: " + totalCount);
     }
 
-    private void showAlert() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText("Failed to load bookings. Please try again.");
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
     private void showSuccess() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText("Data refreshed successfully!");
-        alert.showAndWait();
+        showAlert("Success", "Data refreshed successfully!");
     }
 
-
+    @FXML
     public void refreshBookings() {
         loadAllBookingsWithNotification();
     }
@@ -346,5 +437,6 @@ public class AdminBookingsController implements Initializable {
         public String getFormattedDate() { return formattedDate; }
         public String getAmount() { return amount; }
         public String getTrekName() { return trekName; }
+        public Booking getOriginalBooking() { return originalBooking; }
     }
 }

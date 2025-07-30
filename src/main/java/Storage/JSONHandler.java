@@ -106,6 +106,7 @@ public class JSONHandler {
     public List<Guide> getGuides() {
         return loadGuides();
     }
+
     public static boolean addUser(User user) {
         try {
             List<User> users = loadUsers();
@@ -123,4 +124,53 @@ public class JSONHandler {
         }
     }
 
+    public static boolean addGuide(Guide guide) {
+        try {
+            List<Guide> guides = loadGuides();
+
+            // Check if guide already exists
+            if (guides.stream().anyMatch(g -> g.getEmail().equals(guide.getEmail()))) {
+                return false; // Guide already exists
+            }
+
+            guides.add(guide);
+            return saveGuides(guides);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteGuide(String email) {
+        try {
+            List<Guide> guides = loadGuides();
+            boolean removed = guides.removeIf(guide ->
+                    guide.getEmail().equalsIgnoreCase(email));
+
+            if (removed) {
+                return saveGuides(guides);
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteUser(String email) {
+        try {
+            List<User> users = loadUsers();
+            boolean removed = users.removeIf(user ->
+                    user.getEmail().equalsIgnoreCase(email) &&
+                            "user".equalsIgnoreCase(user.getUserType()));
+
+            if (removed) {
+                return saveUsers(users);
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

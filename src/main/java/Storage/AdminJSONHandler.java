@@ -118,6 +118,21 @@ public class AdminJSONHandler {
         }
     }
 
+    public boolean deleteTrek(int trekId) {
+        try {
+            List<Trek> treks = loadTreks();
+            boolean removed = treks.removeIf(trek -> trek.getId() == trekId);
+
+            if (removed) {
+                return saveToFile(TREKS_FILE, treks);
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deleting trek: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // ==================== ATTRACTION METHODS ====================
 
@@ -154,6 +169,21 @@ public class AdminJSONHandler {
         }
     }
 
+    public boolean deleteAttraction(int attractionId) {
+        try {
+            List<Attraction> attractions = loadAttractions();
+            boolean removed = attractions.removeIf(attraction -> attraction.getId() == attractionId);
+
+            if (removed) {
+                return saveToFile(ATTRACTIONS_FILE, attractions);
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deleting attraction: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // ==================== BOOKING METHODS ====================
 
@@ -190,6 +220,21 @@ public class AdminJSONHandler {
                 .collect(Collectors.toList());
     }
 
+    public boolean deleteBooking(int bookingId) {
+        try {
+            List<Booking> bookings = loadBookings();
+            boolean removed = bookings.removeIf(booking -> booking.getId() == bookingId);
+
+            if (removed) {
+                return saveToFile(BOOKINGS_FILE, bookings);
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deleting booking: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // ==================== GUIDE METHODS ====================
 

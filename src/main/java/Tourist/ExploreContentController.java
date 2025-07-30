@@ -16,8 +16,11 @@ import javafx.geometry.Pos;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import Tourist.TouristBookingController;
 
 public class ExploreContentController implements Initializable {
 
@@ -244,23 +247,7 @@ public class ExploreContentController implements Initializable {
                         "-fx-effect: dropshadow(gaussian, rgba(255,68,68,0.4), 4, 0, 0, 1);"
         );
 
-        // Add subtle warning animation
-        addWarningPulseEffect(altitudeWarningBadge);
-
         return altitudeWarningBadge;
-    }
-
-    // NEW: Add warning pulse effect
-    private void addWarningPulseEffect(Label warningBadge) {
-        javafx.animation.ScaleTransition scaleTransition =
-                new javafx.animation.ScaleTransition(javafx.util.Duration.seconds(2.0), warningBadge);
-        scaleTransition.setFromX(1.0);
-        scaleTransition.setFromY(1.0);
-        scaleTransition.setToX(1.03);
-        scaleTransition.setToY(1.03);
-        scaleTransition.setCycleCount(javafx.animation.Animation.INDEFINITE);
-        scaleTransition.setAutoReverse(true);
-        scaleTransition.play();
     }
 
     private Label createDiscountBadge(Trek trek) {
@@ -279,8 +266,6 @@ public class ExploreContentController implements Initializable {
                         "-fx-border-radius: 12; " +
                         "-fx-effect: dropshadow(gaussian, rgba(255,107,53,0.4), 4, 0, 0, 1);"
         );
-
-        addPulseEffect(discountBadge);
         return discountBadge;
     }
 
@@ -303,18 +288,6 @@ public class ExploreContentController implements Initializable {
         }
 
         return costSection;
-    }
-
-    private void addPulseEffect(Label discountBadge) {
-        javafx.animation.ScaleTransition scaleTransition =
-                new javafx.animation.ScaleTransition(javafx.util.Duration.seconds(1.5), discountBadge);
-        scaleTransition.setFromX(1.0);
-        scaleTransition.setFromY(1.0);
-        scaleTransition.setToX(1.05);
-        scaleTransition.setToY(1.05);
-        scaleTransition.setCycleCount(javafx.animation.Animation.INDEFINITE);
-        scaleTransition.setAutoReverse(true);
-        scaleTransition.play();
     }
 
     private String getDifficultyStyle(String difficulty) {
@@ -437,111 +410,145 @@ public class ExploreContentController implements Initializable {
         detailsAlert.showAndWait();
     }
 
-    private void bookTrek(Trek trek) {
-        updateUserEmailFromSession();
+    private boolean showHighAltitudeWarning(Trek trek) {
+        Alert warningAlert = new Alert(Alert.AlertType.WARNING);
+        warningAlert.setTitle("⚠️ HIGH ALTITUDE DANGER WARNING");
+        warningAlert.setHeaderText("EXTREME CAUTION REQUIRED");
 
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Book Trek");
-        confirmAlert.setHeaderText("Confirm Booking");
+        String riskLevel = getRiskLevel(trek.getMaxAltitude());
 
-        String bookingDetails;
-        if (trek.hasDiscount()) {
-            bookingDetails = String.format(
-                    "You are about to book:\n\n" +
-                            "%s\n" +
-                            "Starting: %s\n" +
-                            "Duration: %s\n" +
-                            "Max Altitude: %d meters%s\n" +
-                            "DISCOUNT APPLIED: %.1f%% OFF!\n" +
-                            "Original Price: $%.0f\n" +
-                            "Your Price: $%.0f (You save $%.0f!)\n" +
-                            "Guide: %s\n\n" +
-                            "%s" +
-                            "Do you want to proceed with this discounted booking?",
-                    trek.getTrekName(),
-                    trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
-                    trek.getDuration(),
-                    trek.getMaxAltitude(),
-                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
-                    trek.getDiscountPercent(),
-                    trek.getOriginalCost(),
-                    trek.getCost(),
-                    trek.getDiscountAmount(),
-                    extractGuideName(trek.getGuideEmail()),
-                    trek.isHighAltitude() ? "⚠️ HIGH ALTITUDE WARNING: This trek requires proper acclimatization.\n\n" : ""
-            );
-        } else {
-            bookingDetails = String.format(
-                    "You are about to book:\n\n" +
-                            "%s\n" +
-                            "Starting: %s\n" +
-                            "Duration: %s\n" +
-                            "Max Altitude: %d meters%s\n" +
-                            "Total Cost: $%.0f\n" +
-                            "Guide: %s\n\n" +
-                            "%s" +
-                            "Do you want to proceed with the booking?",
-                    trek.getTrekName(),
-                    trek.getStartDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
-                    trek.getDuration(),
-                    trek.getMaxAltitude(),
-                    trek.isHighAltitude() ? " ⚠️ HIGH ALTITUDE" : "",
-                    trek.getCost(),
-                    extractGuideName(trek.getGuideEmail()),
-                    trek.isHighAltitude() ? "⚠️ HIGH ALTITUDE WARNING: This trek requires proper acclimatization.\n\n" : ""
-            );
+        String warningMessage = String.format(
+                "🚨 DANGER: This trek involves extreme altitude!\n\n" +
+                        "TREK DETAILS:\n" +
+                        "• Trek: %s\n" +
+                        "• Maximum Altitude: %dm\n" +
+                        "• Risk Level: %s\n\n" +
+                        "⚠️ SERIOUS HEALTH RISKS:\n" +
+                        "• Acute Mountain Sickness (AMS)\n" +
+                        "• High Altitude Pulmonary Edema (HAPE)\n" +
+                        "• High Altitude Cerebral Edema (HACE)\n" +
+                        "• Severe breathing difficulties\n" +
+                        "• Risk of death if not properly managed\n\n" +
+                        "🏥 MANDATORY REQUIREMENTS:\n" +
+                        "• Medical clearance from a doctor\n" +
+                        "• Previous high-altitude experience recommended\n" +
+                        "• Comprehensive travel insurance with helicopter evacuation\n" +
+                        "• Physical fitness certification\n" +
+                        "• Proper acclimatization schedule\n\n" +
+                        "📋 SAFETY CHECKLIST:\n" +
+                        "☐ Medical consultation completed\n" +
+                        "☐ Insurance with evacuation coverage\n" +
+                        "☐ Emergency contact information provided\n" +
+                        "☐ Altitude sickness medication available\n" +
+                        "☐ Experienced guide confirmed\n\n" +
+                        "By continuing, you acknowledge that you understand these risks and take full responsibility for your safety.\n\n" +
+                        "Do you want to proceed to the booking screen?",
+                trek.getTrekName(), trek.getMaxAltitude(), riskLevel
+        );
+
+        warningAlert.setContentText(warningMessage);
+
+        // Custom buttons
+        ButtonType proceedButton = new ButtonType("I Accept All Risks - Continue to Booking", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        warningAlert.getButtonTypes().setAll(proceedButton, cancelButton);
+
+        // Style the dialog
+        warningAlert.getDialogPane().setPrefWidth(600);
+        warningAlert.getDialogPane().setPrefHeight(500);
+        warningAlert.getDialogPane().setStyle(
+                "-fx-font-family: 'System'; -fx-font-size: 12px; -fx-background-color: #fff3cd; -fx-border-color: #ffc107; -fx-border-width: 2px;"
+        );
+
+        // Style the proceed button to be very prominent and warning-colored
+        warningAlert.getDialogPane().lookupButton(proceedButton).setStyle(
+                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10px 20px;"
+        );
+
+        // Style the cancel button
+        warningAlert.getDialogPane().lookupButton(cancelButton).setStyle(
+                "-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px 20px;"
+        );
+
+        // Show dialog and return result
+        Optional<ButtonType> result = warningAlert.showAndWait();
+        boolean userAccepted = result.filter(response -> response == proceedButton).isPresent();
+
+        if (userAccepted) {
+            System.out.println("User accepted altitude risks for trek: " + trek.getTrekName());
         }
 
-        confirmAlert.setContentText(bookingDetails);
+        return userAccepted;
+    }
+    private void processBooking(Trek trek) {
+        boolean success = createBooking(trek);
 
-        confirmAlert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                boolean success = createBooking(trek);
+        if (success) {
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("Booking Confirmed!");
+            successAlert.setHeaderText("🎉 SUCCESS!");
 
-                if (success) {
-                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                    successAlert.setTitle("Booking Confirmed");
-                    successAlert.setHeaderText("Success!");
-
-                    String successMessage;
-                    if (trek.hasDiscount()) {
-                        successMessage = String.format(
-                                "Your booking for %s has been confirmed!\n\n" +
-                                        "Congratulations! You saved $%.0f with our %.1f%% discount!\n" +
-                                        "Final Amount Paid: $%.0f\n\n" +
-                                        "Booking Status: Confirmed\n" +
-                                        "%s",
-                                trek.getTrekName(),
-                                trek.getDiscountAmount(),
-                                trek.getDiscountPercent(),
-                                trek.getCost(),
-                                trek.isHighAltitude() ? "\n⚠️ Remember: This is a high-altitude trek. Please prepare accordingly!" : ""
-                        );
-                    } else {
-                        successMessage = String.format(
-                                "Your booking for %s has been confirmed!\n\n" +
-                                        "Amount Paid: $%.0f\n" +
-                                        "Booking Status: Confirmed\n" +
-                                        "%s",
-                                trek.getTrekName(),
-                                trek.getCost(),
-                                trek.isHighAltitude() ? "\n⚠️ Remember: This is a high-altitude trek. Please prepare accordingly!" : ""
-                        );
-                    }
-
-                    successAlert.setContentText(successMessage);
-                    successAlert.showAndWait();
-                } else {
-                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                    errorAlert.setTitle("Booking Failed");
-                    errorAlert.setHeaderText("Error");
-                    errorAlert.setContentText("Sorry, there was an error processing your booking. Please try again later.");
-                    errorAlert.showAndWait();
-                }
+            String successMessage;
+            if (trek.hasDiscount()) {
+                successMessage = String.format(
+                        "Your booking for %s has been confirmed!\n\n" +
+                                "🎉 Congratulations! You saved $%.0f with our %.1f%% discount!\n" +
+                                "💰 Final Amount Paid: $%.0f\n\n" +
+                                "📧 Confirmation details will be sent to your email\n" +
+                                "📞 Your guide will contact you soon\n" +
+                                "%s" +
+                                "\nThank you for choosing our trekking service!",
+                        trek.getTrekName(),
+                        trek.getDiscountAmount(),
+                        trek.getDiscountPercent(),
+                        trek.getCost(),
+                        trek.isHighAltitude() ? "\n⚠️ IMPORTANT: Start your high-altitude preparation immediately!\n" +
+                                "• Schedule medical consultation\n" +
+                                "• Arrange travel insurance\n" +
+                                "• Begin physical training\n" : ""
+                );
+            } else {
+                successMessage = String.format(
+                        "Your booking for %s has been confirmed!\n\n" +
+                                "💰 Amount Paid: $%.0f\n" +
+                                "📧 Confirmation details will be sent to your email\n" +
+                                "📞 Your guide will contact you soon\n" +
+                                "%s" +
+                                "\nThank you for choosing our trekking service!",
+                        trek.getTrekName(),
+                        trek.getCost(),
+                        trek.isHighAltitude() ? "\n⚠️ IMPORTANT: Start your high-altitude preparation immediately!\n" +
+                                "• Schedule medical consultation\n" +
+                                "• Arrange travel insurance\n" +
+                                "• Begin physical training\n" : ""
+                );
             }
-        });
+
+            successAlert.setContentText(successMessage);
+            successAlert.getDialogPane().setPrefWidth(500);
+            successAlert.showAndWait();
+        } else {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Booking Failed");
+            errorAlert.setHeaderText("❌ Error");
+            errorAlert.setContentText("Sorry, there was an error processing your booking. Please try again later or contact our support team.");
+            errorAlert.showAndWait();
+        }
     }
 
+    private String getRiskLevel(int altitude) {
+        if (altitude < 2500) {
+            return "LOW RISK";
+        } else if (altitude < 3500) {
+            return "MODERATE RISK";
+        } else if (altitude < 4500) {
+            return "HIGH RISK";
+        } else if (altitude < 5500) {
+            return "VERY HIGH RISK";
+        } else {
+            return "EXTREME RISK";
+        }
+    }
     private boolean createBooking(Trek trek) {
         try {
             String userEmailToUse = getCurrentUserEmailFromSession();
@@ -580,4 +587,70 @@ public class ExploreContentController implements Initializable {
             return currentUserEmail;
         }
     }
+    private void bookTrek(Trek trek) {
+        updateUserEmailFromSession();
+
+        if (trek.isHighAltitude() && !showRiskAcknowledgment(trek)) {
+            return;
+        }
+
+        showBookingConfirmation(trek);
+    }
+
+    private boolean showRiskAcknowledgment(Trek trek) {
+        Alert warning = new Alert(Alert.AlertType.WARNING);
+        warning.setTitle("High Altitude Warning");
+        warning.setHeaderText("⚠️ " + trek.getTrekName() + " reaches " + trek.getMaxAltitude() + "m");
+        warning.setContentText(
+                "This trek is classified as a high-altitude trek.\n" +
+                        "Risks include AMS, HAPE, and HACE.\n\n" +
+                        "Medical fitness and proper acclimatization are required.\n\n" +
+                        "Do you acknowledge these risks and want to continue?"
+        );
+
+        ButtonType proceed = new ButtonType("I Accept the Risks", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        warning.getButtonTypes().setAll(proceed, cancel);
+
+        return warning.showAndWait().filter(r -> r == proceed).isPresent();
+    }
+
+    private void showBookingConfirmation(Trek trek) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Booking");
+        confirm.setHeaderText("Booking: " + trek.getTrekName());
+        String msg = String.format(
+                "Start Date: %s\nDuration: %s\nMax Altitude: %dm %s\n\nTotal Cost: $%.0f\n\nProceed with this booking?",
+                trek.getStartDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                trek.getDuration(),
+                trek.getMaxAltitude(),
+                trek.isHighAltitude() ? "(High Altitude)" : "",
+                trek.getCost()
+        );
+        confirm.setContentText(msg);
+
+        ButtonType confirmBtn = new ButtonType("Confirm Booking", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirm.getButtonTypes().setAll(confirmBtn, cancelBtn);
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == confirmBtn) {
+                boolean success = createBooking(trek);
+                showBookingResult(success, trek);
+            }
+        });
+    }
+
+    private void showBookingResult(boolean success, Trek trek) {
+        Alert result = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+        result.setTitle(success ? "Booking Confirmed" : "Booking Failed");
+        result.setHeaderText(success ? "🎉 Your booking is confirmed!" : "❌ Booking failed");
+        result.setContentText(success
+                ? String.format("Trek: %s\nAmount Paid: $%.0f\n\nYou’ll receive an email confirmation shortly.",
+                trek.getTrekName(), trek.getCost())
+                : "An error occurred during booking. Please try again later."
+        );
+        result.showAndWait();
+    }
+
 }
