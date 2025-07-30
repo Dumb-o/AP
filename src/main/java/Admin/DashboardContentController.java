@@ -19,9 +19,9 @@ import Models.Emergency;
 import Models.Booking;
 import Models.Trek;
 import Models.Attraction;
+import Models.User;
 import Services.WeatherService;
 import javafx.scene.chart.PieChart;
-import Models.User;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -37,6 +37,7 @@ public class DashboardContentController implements Initializable {
     @FXML private Label currentDateLabel;
     @FXML private Label totalTouristsLabel;
     @FXML private Label activeGuidesLabel;
+    @FXML private Label attractionsCount;
     @FXML private Label totalEmergenciesLabel;
     @FXML private VBox activityList;
     @FXML private BarChart<String, Number> bookingTrendsChart;
@@ -83,6 +84,7 @@ public class DashboardContentController implements Initializable {
         // Load statistics
         totalTouristsLabel.setText(String.valueOf(getTotalTourists()));
         activeGuidesLabel.setText(String.valueOf(getTotalGuides()));
+        attractionsCount.setText(String.valueOf(getTotalAttractions()));
         totalEmergenciesLabel.setText(String.valueOf(getTotalEmergencies()));
     }
 
@@ -143,6 +145,15 @@ public class DashboardContentController implements Initializable {
             return adminJsonHandler.loadGuides().size();
         } catch (Exception e) {
             System.err.println("Error loading guides count: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    private int getTotalAttractions() {
+        try {
+            return adminJsonHandler.loadAttractions().size();
+        } catch (Exception e) {
+            System.err.println("Error loading attractions count: " + e.getMessage());
             return 0;
         }
     }
